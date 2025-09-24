@@ -73,7 +73,7 @@ ULTRATHINK ACTIVATED - Comprehensive system analysis
 - **OBSERVE Phase**: No special thinking needed (data gathering)
 - **ORIENT Phase**: Primary thinking investment
   - Standard bugs: think (4,000 tokens)
-  - Complex bugs: megathink (10,000 tokens)
+  - Complex bugs: megathink (10,000 tokens)  
   - Mystery bugs: ultrathink (31,999 tokens)
 - **DECIDE Phase**: Quick think for hypothesis formation
 - **ACT Phase**: No thinking needed (execution only)
@@ -138,27 +138,27 @@ Establish ground truth:
     → Incorrect output from correct input
     → Focus: Data Flow & Transformation Analysis
     → Think Level: Standard (4,000 tokens)
-
+    
 [ ] 💾 State Error
     → Incorrect data in memory, database, or cache
     → Focus: State Analysis & Transitions
     → Think Level: Megathink (10,000 tokens)
-
+    
 [ ] 🔌 Integration Error
     → Failure at component/service boundaries
     → Focus: Dependency Graphs & Contract Analysis
     → Think Level: Megathink (10,000 tokens)
-
+    
 [ ] ⚡ Performance Error
     → Correct but too slow or resource-intensive
     → Focus: Profiling & Bottleneck Analysis
     → Think Level: Standard (4,000 tokens)
-
+    
 [ ] ⚙️ Configuration Error
     → Environment-specific failure
     → Focus: Environment Diffs & Permissions
     → Think Level: Standard (4,000 tokens)
-
+    
 [ ] ❓ Complete Mystery
     → No clear pattern or cause
     → Focus: First Principles & System Analysis
@@ -265,7 +265,7 @@ echo "Framework candidates: ${CANDIDATES[@]}" >> debug_loop.md
 
 # Examples of selection logic:
 # - Single clear error → 5 Whys
-# - Works for A but not B → Differential Analysis
+# - Works for A but not B → Differential Analysis  
 # - Complex logic, no errors → Rubber Duck
 # - Timing-dependent → Timeline Analysis
 # - API mismatch → Contract Testing
