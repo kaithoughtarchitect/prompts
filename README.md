@@ -132,17 +132,6 @@ Comprehensive evaluator for multi-agent AI systems with 40+ quality criteria, mo
 
 ---
 
-## 📚 Documentation
-
-Each system includes comprehensive documentation:
-
-- **README files** - Quick start guides and usage instructions
-- **Detailed prompts** - Complete system instructions
-- **Examples** - Real-world usage scenarios
-- **Best practices** - Optimization tips and troubleshooting
-
----
-
 ## 📖 Getting Started
 
 1. **Choose your system** based on your needs (see "When to Use" table above)
