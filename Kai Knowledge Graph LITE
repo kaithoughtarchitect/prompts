@@ -1,0 +1,2862 @@
+# Knowledge Graph LITE - Reference Architecture v1.0
+**Platform-Agnostic Specification for Personal Knowledge Management**
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  FEED THIS DOCUMENT TO YOUR PREFERRED LLM                   │
+│  Ask it to adapt the implementation to your environment     │
+│  Works with: Claude, ChatGPT, Gemini, or any LLM           │
+└─────────────────────────────────────────────────────────────┘
+```
+
+**Document Purpose**: Complete architectural specification for building a markdown-based knowledge graph system. Your LLM will adapt this to your tools, platform, and preferences.
+
+**Last Updated**: 2025-11-05
+**Version**: 1.0
+**Status**: Production-tested, proven effective at 230+ nodes
+
+---
+
+## 📋 Table of Contents
+
+1. [System Overview](#1-system-overview)
+2. [Architecture Layers](#2-architecture-layers)
+3. [Data Structures](#3-data-structures)
+4. [Core Components](#4-core-components)
+5. [Automation Agents](#5-automation-agents)
+6. [Visual Rendering](#6-visual-rendering)
+7. [Query System](#7-query-system)
+8. [Implementation Checklist](#8-implementation-checklist)
+9. [Validation Tests](#9-validation-tests)
+10. [Example Data](#10-example-data)
+
+---
+
+## 1. System Overview
+
+### 1.1 What This System Does
+
+Knowledge Graph LITE captures, organizes, and visualizes your work patterns using:
+- **Markdown files** - Structured text, zero infrastructure
+- **Context cards** - Reusable knowledge units (METHOD, INSIGHT, PROJECT)
+- **Visual graphs** - Mermaid diagrams showing relationships
+- **AI agents** - Automated extraction and integration
+
+### 1.2 Core Problem Solved
+
+**Problem**: Every AI conversation starts from scratch. Context is lost. Patterns are forgotten. Decisions are repeated.
+
+**Solution**: Persistent knowledge graph that:
+- Captures work context automatically during session close
+- Extracts reusable patterns (methods, insights, projects)
+- Shows relationships between knowledge units
+- Enables AI agents to query past work
+- Persists across all sessions and context resets
+
+### 1.3 Key Principles
+
+1. **Markdown-first**: Plain text files, git-trackable, portable
+2. **Agent-automated**: Extraction happens automatically, not manually
+3. **Visually rendered**: Patterns obvious at a glance via Mermaid diagrams
+4. **Relationship-focused**: Connections matter more than isolated cards
+5. **Bounded scope**: 230 nodes per file (performance + cognitive limit)
+
+### 1.4 Scale & Scope
+
+**What this is:**
+- Personal knowledge management tool
+- 230 nodes max per file (60-80 sessions, 20+ projects)
+- Zero cost (just markdown + text editor)
+- Works anywhere with filesystem
+
+**What this isn't:**
+- Enterprise knowledge management
+- Team collaboration platform
+- Replacement for graph databases (Neo4j, etc.)
+- Production-scale system
+
+**When to use enterprise tools instead:**
+- Team collaboration needed
+- Millions of nodes required
+- Complex graph queries essential
+- Production deployment at scale
+
+---
+
+## 2. Architecture Layers
+
+### 2.1 Three-Layer Stack
+
+```
+┌─────────────────────────────────────────────────────┐
+│  LAYER 3: VISUAL RENDERING                          │
+│  - Mermaid diagram with nodes/edges                 │
+│  - Interactive dashboard (optional)                 │
+│  - Makes patterns obvious at a glance               │
+└─────────────────────────────────────────────────────┘
+                      ↑
+┌─────────────────────────────────────────────────────┐
+│  LAYER 2: CONTEXT CARDS                             │
+│  - Structured markdown entries                      │
+│  - METHOD | INSIGHT | PROJECT types                 │
+│  - Max 230 cards per file                           │
+└─────────────────────────────────────────────────────┘
+                      ↑
+┌─────────────────────────────────────────────────────┐
+│  LAYER 1: SESSION EXTRACTION                        │
+│  - Work happens → Session closes → Cards created    │
+│  - Agent reads transcript, extracts knowledge       │
+│  - Timing matters: extract DURING close, not after │
+└─────────────────────────────────────────────────────┘
+```
+
+### 2.2 Layer 1: Session Tracking (Foundation)
+
+**Purpose**: Provide context for extraction
+
+**Components**:
+- Session file (markdown format)
+- Work log (timestamped activities)
+- Decision log (choices made + rationale)
+- Problem log (challenges + solutions)
+
+**Critical Understanding**: Automatic extraction requires session content to extract FROM. Without session tracking, there's nothing to extract.
+
+**Implementation Requirements**:
+- Simple markdown file format
+- Capture work as it happens (5-10 min daily overhead)
+- Structure: Header + Work Log + Decisions + Problems + Outcomes
+
+**Success Criteria**:
+✓ Session file exists for each work session
+✓ Contains sufficient context for extraction (who/what/why/how)
+✓ Updated during work, not retrospectively
+
+### 2.3 Layer 2: Context Cards (Knowledge Units)
+
+**Purpose**: Store reusable knowledge as structured entries
+
+**Card Types**:
+1. **METHOD** - Repeatable processes (3-7 steps, 10-30 min execution)
+2. **INSIGHT** - Patterns observed 3+ times with evidence
+3. **PROJECT** - Significant work (2+ hours, multiple phases)
+
+**Storage**:
+- Individual markdown files per card
+- Organized in folders: `contexts/methods/`, `contexts/insights/`, `contexts/projects/`
+- Naming convention: `TYPE_DESCRIPTIVE_NAME_YYYYMMDD.md`
+
+**Card Structure** (applies to all types):
+- Metadata (date, type, session ID)
+- Purpose/Overview
+- Core content (method steps, insight pattern, or project phases)
+- Success metrics
+- Relationship hints (connects to which other cards)
+
+**Success Criteria**:
+✓ Each card follows consistent structure
+✓ Naming convention enables sorting + searching
+✓ Relationship hints populated (enables graph generation)
+
+### 2.4 Layer 3: Visual Rendering (Intelligence Layer)
+
+**Purpose**: Make patterns obvious through visualization
+
+**Components**:
+1. **Main graph file** (`knowledge_graph.md`) with Mermaid diagram
+2. **Node representation** - Each card becomes a node
+3. **Edge representation** - Relationships become connections
+4. **Cluster detection** - Groups of 5-6+ highly connected cards
+
+**Rendering Options**:
+- **Option A**: VS Code with Mermaid preview extension
+- **Option B**: GitHub markdown rendering
+- **Option C**: mermaid.live website
+- **Option D**: Custom web dashboard (React/Vue/etc.)
+
+**Success Criteria**:
+✓ Mermaid diagram renders without errors
+✓ All cards visible as nodes
+✓ Relationships shown as edges (≥70% strength)
+✓ Clusters visually distinct
+
+---
+
+## 3. Data Structures
+
+### 3.1 File Organization
+
+```
+knowledge-graph-lite/
+├── knowledge_graph.md              # Main visual graph file
+├── graph-config.yaml               # Configuration (optional)
+├── contexts/
+│   ├── methods/                    # METHOD cards
+│   │   ├── METHOD_OODA_DEBUG_20251006.md
+│   │   └── METHOD_ASYNC_DEBUG_20251002.md
+│   ├── insights/                   # INSIGHT cards
+│   │   ├── INSIGHT_ERROR_CASCADES_20251003.md
+│   │   └── INSIGHT_VERIFY_BEFORE_CREATE_20251007.md
+│   └── projects/                   # PROJECT cards
+│       ├── PROJECT_AUTH_IMPL_20251001.md
+│       └── PROJECT_FRONTEND_INTEGRATION_20251008.md
+├── sessions/                       # Session files (optional)
+│   ├── session_2025-11-05.md
+│   └── session_2025-11-04.md
+└── scripts/                        # Query helpers (optional)
+    └── query.sh
+```
+
+### 3.2 Naming Conventions
+
+**Card IDs**: `TYPE_DESCRIPTIVE_NAME_YYYYMMDD`
+
+**Rules**:
+- TYPE: METHOD, INSIGHT, or PROJECT (all caps)
+- DESCRIPTIVE_NAME: Underscore-separated, meaningful identifier
+- YYYYMMDD: Creation date (enables sorting)
+
+**Examples**:
+- ✅ `METHOD_OODA_LOOP_DEBUGGING_20251006`
+- ✅ `INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003`
+- ✅ `PROJECT_KNOWLEDGE_GRAPH_IMPLEMENTATION_20251101`
+- ❌ `method_debugging_20251006` (lowercase type)
+- ❌ `METHOD_THING_20251006` (not descriptive)
+- ❌ `METHOD_DEBUGGING` (missing date)
+
+### 3.3 METHOD Card Structure
+
+```markdown
+# METHOD_[NAME]_YYYYMMDD
+
+**Date**: YYYY-MM-DD
+**Type**: [Framework/Process/Workflow category]
+**Session**: [session_id or source]
+
+## Overview
+[1-2 paragraph summary of what this method does and why it exists]
+
+## Pattern Structure
+
+### Step 1: [Name]
+[Specific actions to take]
+[Expected duration]
+[Expected outcome]
+
+### Step 2: [Name]
+[Specific actions to take]
+[Expected duration]
+[Expected outcome]
+
+[Continue for 3-7 steps total]
+
+## Example from Session [ID]
+[Concrete example showing method in action]
+- **Context**: [What problem was being solved]
+- **Application**: [How method was applied]
+- **Result**: [Outcome achieved]
+- **Duration**: [Time taken]
+
+## Benefits
+[What makes this method valuable]
+
+## When to Use
+- [Specific scenario 1]
+- [Specific scenario 2]
+- [Specific scenario 3]
+
+## Implementation Guidelines
+[Practical tips for executing this method]
+
+## Anti-Patterns to Avoid
+- [Common mistake 1]: [Why it fails]
+- [Common mistake 2]: [Why it fails]
+
+## Success Metrics
+- **Attempts**: [number of times used]
+- **Success Rate**: [percentage]%
+- **Time to Solution**: [average duration]
+- **Last Used**: [date]
+
+## Related Frameworks
+[Other methods/frameworks this connects to]
+
+---
+
+## Relationship Hints
+
+**Combines With:**
+- [METHOD/INSIGHT that works well with this]
+
+**Enables:**
+- [What this method makes possible]
+
+**Related To:**
+- [Similar methods]
+
+**Validated By:**
+- [Projects/sessions where this worked]
+
+**Pattern Strength**: [Low/Medium/High/Very High] ([percentage]%)
+
+**Temporal Proximity**: [When this was created relative to related cards]
+```
+
+### 3.4 INSIGHT Card Structure
+
+```markdown
+# INSIGHT_[NAME]_YYYYMMDD
+
+**Date**: YYYY-MM-DD
+**Type**: [Pattern/Principle/Anti-pattern category]
+**Session**: [session_id or source]
+
+## Overview
+[1-2 paragraph summary of the discovered pattern]
+
+## Pattern Structure
+[Clear articulation of the pattern]
+
+## Evidence
+_Pattern observed across multiple contexts_
+
+- **Instance 1**: [Where/when] - [Specific details]
+- **Instance 2**: [Where/when] - [Specific details]
+- **Instance 3**: [Where/when] - [Specific details]
+- **Instance 4+**: [Additional observations]
+
+**Confidence Level**: [High/Medium/Low] based on [n] observations
+
+## Why This Matters
+[Explanation of significance and impact]
+
+## Applications
+
+**Development Context:**
+- [How to apply in development scenarios]
+
+**Architecture Context:**
+- [How to apply in architecture decisions]
+
+**Debugging Context:**
+- [How to apply in debugging situations]
+
+[Add other relevant contexts]
+
+## Counter-Examples
+_Situations where this insight doesn't apply_
+
+- [Exception 1]: [Why pattern doesn't hold]
+- [Exception 2]: [Why pattern doesn't hold]
+
+## Related Patterns
+[Other insights this connects to]
+
+---
+
+## Relationship Hints
+
+**Enables:**
+- [What this insight makes possible]
+
+**Validates:**
+- [What proves this insight correct]
+
+**Informs:**
+- [What methods/approaches this guides]
+
+**Related To:**
+- [Similar insights]
+
+**Pattern Strength**: [percentage]%
+
+**Temporal Proximity**: [When discovered relative to related cards]
+```
+
+### 3.5 PROJECT Card Structure
+
+```markdown
+# PROJECT_[NAME]_YYYYMMDD
+
+## Session Summary
+- **Date**: YYYY-MM-DD
+- **Duration**: [X]h [Y]m
+- **Session ID**: [session_id]
+- **Source**: [session file path]
+
+## Primary Goal
+[Clear statement of what this project aimed to accomplish]
+
+## Accomplished
+- **Phase 1**: [What was completed]
+- **Phase 2**: [What was completed]
+- **Phase 3**: [What was completed]
+[Continue for all phases]
+
+## Progress Made
+- **Metaframes**: [X/Y] ([percentage]% complete)
+- **Frames**: [X/Y] ([percentage]% complete)
+- **Success Rate**: [percentage]%
+- **Deviations**: [none or description]
+
+## Key Decisions
+
+### Decision 1: [Name]
+- [What was decided]
+- **Benefits**: [Why this choice]
+- **Decision made because**: [Rationale]
+
+### Decision 2: [Name]
+[Continue for all significant decisions]
+
+## Files Modified/Created
+
+### New Files
+1. [file path] - [purpose]
+2. [file path] - [purpose]
+
+### Modified Files
+1. [file path] - [changes made]
+2. [file path] - [changes made]
+
+## Technical Achievements
+
+### Performance Metrics
+- [Metric 1]: [Value]
+- [Metric 2]: [Value]
+
+### Code Quality
+- [Quality indicator 1]
+- [Quality indicator 2]
+
+## Commits
+1. [hash] - [Phase description]
+2. [hash] - [Phase description]
+
+## Unexpected Discoveries
+
+### Discovery 1: [Name]
+- **Found**: [What was discovered]
+- **Solution**: [How it was addressed]
+- **Impact**: [Effect on project]
+
+## Methods Applied
+- **[METHOD_NAME]**: [How it was used, results]
+- **[METHOD_NAME]**: [How it was used, results]
+
+## Insights Discovered
+- **[INSIGHT_NAME]**: [What was learned]
+- **[INSIGHT_NAME]**: [What was learned]
+
+## Lessons Learned
+[Key takeaways for future similar projects]
+
+---
+
+## Relationship Hints
+
+**Applied:**
+- [Which methods were used]
+
+**Validated:**
+- [Which insights were confirmed]
+
+**Discovered:**
+- [Which new insights emerged]
+
+**Enabled by:**
+- [Prerequisites that made this possible]
+
+**Enables:**
+- [What this project makes possible next]
+
+**Pattern Strength**: [percentage]%
+```
+
+### 3.6 Main Graph File Structure
+
+```markdown
+# Knowledge Graph LITE
+**Last Updated**: [Auto-updated timestamp]
+**Total Cards**: X METHOD, Y INSIGHT, Z PROJECT
+**Total Relationships**: N
+
+## Visual Graph
+
+```mermaid
+graph TD
+    %% METHOD Nodes
+    METHOD_CARD_1["📘 Method: Display Name"]
+    METHOD_CARD_2["📘 Method: Display Name"]
+
+    %% INSIGHT Nodes
+    INSIGHT_CARD_1["💡 Insight: Display Name"]
+    INSIGHT_CARD_2["💡 Insight: Display Name"]
+
+    %% PROJECT Nodes
+    PROJECT_CARD_1["🎯 Project: Display Name"]
+
+    %% Relationships (edges)
+    METHOD_CARD_1 -->|enables 85%| METHOD_CARD_2
+    METHOD_CARD_1 -->|validates 90%| INSIGHT_CARD_1
+    PROJECT_CARD_1 -->|applied 80%| METHOD_CARD_1
+
+    %% Styling
+    classDef method fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef insight fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef project fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    class METHOD_CARD_1,METHOD_CARD_2 method
+    class INSIGHT_CARD_1,INSIGHT_CARD_2 insight
+    class PROJECT_CARD_1 project
+```
+
+## Quick Stats
+
+| Metric | Count |
+|--------|-------|
+| METHOD cards | X |
+| INSIGHT cards | Y |
+| PROJECT cards | Z |
+| Total relationships | N |
+| Average relationship strength | P% |
+
+## All Cards
+
+### 📘 METHOD Cards (X)
+- `METHOD_CARD_1` - One-line description
+- `METHOD_CARD_2` - One-line description
+
+### 💡 INSIGHT Cards (Y)
+- `INSIGHT_CARD_1` - One-line description
+- `INSIGHT_CARD_2` - One-line description
+
+### 🎯 PROJECT Cards (Z)
+- `PROJECT_CARD_1` - One-line description
+
+## Relationship Index
+
+### By Type
+- **enables**: X relationships (avg Y%)
+- **validates**: X relationships (avg Y%)
+- **requires**: X relationships (avg Y%)
+- **applies**: X relationships (avg Y%)
+- **extends**: X relationships (avg Y%)
+
+### By Strength
+- 90-100%: X relationships (Very Strong)
+- 80-89%: X relationships (Strong)
+- 70-79%: X relationships (Medium - display threshold)
+- <70%: Not displayed (below threshold)
+
+---
+
+_This file is automatically maintained by knowledge-integrator agent._
+_Manual edits will be overwritten. Edit individual card files instead._
+```
+
+### 3.7 Configuration File (Optional)
+
+```yaml
+# graph-config.yaml
+# Controls graph generation, display, and maintenance
+
+display:
+  max_edges_per_node: 5
+  default_view: overview  # overview, detailed, clustered
+  node_labels:
+    max_length: 50
+    show_date: true
+    show_emoji: true
+
+thresholds:
+  minimum_strength: 75      # Create edge only if ≥75%
+  auto_prune_below: 60      # Remove edges <60%
+  cluster_threshold: 3      # Min nodes to form cluster
+  daily_decay_rate: 2       # Strength decay % per day
+
+relationship_weights:
+  semantic_similarity: 40   # Content overlap
+  temporal_proximity: 30    # Created together
+  explicit_reference: 20    # Direct mentions
+  user_validation: 10       # Manual confirmations
+
+relationship_types:
+  - enables      # One method enables another
+  - validates    # Project validates insight
+  - requires     # Dependency relationship
+  - extends      # Builds upon concept
+  - conflicts    # Contradictory approaches
+  - relates_to   # General relationship
+
+clustering:
+  enabled: true
+  algorithm: community_detection
+  max_cluster_size: 18
+  min_similarity: 0.75
+
+mermaid_style:
+  method_color: "#e1f5fe"      # Light blue
+  insight_color: "#fff3e0"     # Light orange
+  project_color: "#f3e5f5"     # Light purple
+
+  strong_edge: "stroke-width:3px"
+  medium_edge: "stroke-width:2px"
+  weak_edge: "stroke-width:1px,stroke-dasharray: 5 5"
+
+graph_limits:
+  max_nodes: 250
+  max_edges: 500
+  pagination_enabled: true
+  nodes_per_page: 50
+
+maintenance:
+  analysis_interval: daily
+  keep_backups: 5
+  audit_trail: true
+  deduplicate: true
+
+performance:
+  cache_enabled: true
+  cache_duration: 7200       # 2 hours
+  lazy_loading: true
+  compression: true
+```
+
+---
+
+## 4. Core Components
+
+### 4.1 Component: Session Files
+
+**Purpose**: Capture work context as it happens to enable automatic extraction
+
+**Required Sections**:
+1. Header (date, goal, expected duration)
+2. Work Log (timestamped activities)
+3. Decisions Made (choices + rationale)
+4. Problems Solved (challenges + solutions)
+5. Code/Files Modified (what changed)
+6. Patterns Noticed (reusable observations)
+7. Session Outcomes (status, time, next steps)
+
+**Template**:
+```markdown
+# Session YYYY-MM-DD
+
+**Started:** HH:MM
+**Goal:** [What you're working on today]
+**Expected Duration:** [estimate]
+
+---
+
+## Work Log
+_Quick bullets as you work_
+
+**HH:MM** - [Activity]
+- [Detail if needed]
+
+**HH:MM** - [Activity]
+- [Detail if needed]
+
+---
+
+## Decisions Made
+_Important choices and their rationale_
+
+1. **[Decision]**: [Why this choice]
+2. **[Decision]**: [Why this choice]
+
+---
+
+## Problems Solved
+_Challenges encountered and solutions found_
+
+| Problem | Solution | Result |
+|---------|----------|--------|
+| [Issue] | [Approach] | [Outcome] |
+
+---
+
+## Code/Files Modified
+_What changed during this session_
+
+- `[file_path]`: [what changed]
+- `[file_path]`: [what changed]
+
+---
+
+## Patterns Noticed
+_Anything that might be reusable or interesting_
+
+- [Pattern or observation]
+- [Pattern or observation]
+
+---
+
+## Session Outcomes
+
+**Total Time:** [actual duration]
+**Status:** [Complete/Partial/Blocked]
+**Next Steps:** [what's next]
+
+---
+
+_Ready for session-closer to extract cards_
+```
+
+**Success Criteria**:
+✓ Session file created at start of work
+✓ Updated during work (5-10 min total overhead)
+✓ Contains sufficient context for extraction
+✓ Work log has timestamps + activities
+✓ Decisions documented with rationale
+✓ Problems include solutions + outcomes
+
+**Daily Workflow**:
+1. **Morning** (2 min): Create session file from template, set goal
+2. **During work** (5-10 min total): Add quick bullets to work log
+3. **End of day** (5 min): Fill decisions/problems, trigger extraction
+
+### 4.2 Component: Context Card Extraction
+
+**Purpose**: Convert session content into reusable knowledge cards
+
+**Extraction Criteria**:
+
+**For METHOD cards**:
+- ✅ Repeatable process with 3-7 clear steps
+- ✅ Solved a problem that could recur
+- ✅ Takes 10-30 minutes to execute
+- ✅ Has measurable success/failure
+- ❌ One-time solutions (not repeatable)
+- ❌ Trivial work (<10 min)
+- ❌ Failed experiments with no lesson
+
+**For INSIGHT cards**:
+- ✅ Pattern observed 3+ times in session/history
+- ✅ Clear evidence across different contexts
+- ✅ High confidence in pattern validity
+- ✅ Actionable applications
+- ❌ Single observations (need 3+)
+- ❌ Speculation without evidence
+- ❌ Domain-specific minutiae
+
+**For PROJECT cards**:
+- ✅ 2+ hours of work
+- ✅ Multiple completed phases
+- ✅ Quantifiable outcomes
+- ✅ Methods applied or insights discovered
+- ❌ Incomplete attempts
+- ❌ <2 hour sessions
+- ❌ Pure exploration with no deliverable
+
+**Decision Tree**:
+```
+Did work involve a repeatable process with clear steps?
+├─ YES → Is it 3-7 steps taking 10-30 min?
+│  ├─ YES → Create METHOD card
+│  └─ NO → Too simple or complex, skip
+└─ NO → Continue...
+
+Did you observe a pattern 3+ times with evidence?
+├─ YES → Is it actionable and high confidence?
+│  ├─ YES → Create INSIGHT card
+│  └─ NO → Document in notes, not card
+└─ NO → Continue...
+
+Was this significant work (2+ hours, multiple phases)?
+├─ YES → Did it produce quantifiable outcomes?
+│  ├─ YES → Create PROJECT card
+│  └─ NO → Not significant enough
+└─ NO → No card needed
+```
+
+**Success Criteria**:
+✓ Only creates cards for significant, reusable work
+✓ Follows extraction criteria strictly
+✓ Uses descriptive names (not generic)
+✓ Fills ALL sections (no placeholders)
+✓ Populates relationship hints
+✓ Adds concrete examples from session
+
+### 4.3 Component: Relationship Management
+
+**Purpose**: Connect related cards to show patterns and enable graph traversal
+
+**Relationship Types**:
+1. **enables** - One card makes another possible (METHOD → METHOD, INSIGHT → METHOD)
+2. **validates** - Evidence that confirms a pattern (PROJECT → INSIGHT)
+3. **requires** - Dependency (METHOD → METHOD, INSIGHT → INSIGHT)
+4. **applies** - Card used in project (PROJECT → METHOD)
+5. **extends** - Builds upon concept (METHOD → METHOD, INSIGHT → INSIGHT)
+6. **relates_to** - General connection
+
+**Relationship Strength Calculation**:
+```python
+def calculate_strength(source_card, target_card, rel_type):
+    strength = 70  # Base (threshold minimum)
+
+    # Factor 1: Explicit mention (+20%)
+    if target_card.id in source_card.content:
+        strength += 20
+
+    # Factor 2: Temporal proximity (+10%)
+    date_diff = abs(source_card.date - target_card.date)
+    if date_diff <= 7 days:
+        strength += 10
+    elif date_diff <= 30 days:
+        strength += 5
+
+    # Factor 3: Same domain (+10%)
+    if same_domain(source_card, target_card):
+        strength += 10
+
+    # Factor 4: Relationship type bonus
+    if rel_type in ['validates', 'enables']:
+        strength += 5
+    elif rel_type == 'requires':
+        strength += 3
+
+    return min(strength, 95)  # Cap at 95%
+```
+
+**Relationship Hints Format** (in each card):
+```markdown
+## Relationship Hints
+
+**Enables:**
+- [Card that this makes possible]
+
+**Validates:**
+- [Card that proves this works]
+
+**Requires:**
+- [Card that this depends on]
+
+**Related To:**
+- [Similar cards]
+
+**Pattern Strength**: [High/Medium/Low] ([percentage]%)
+
+**Temporal Proximity**: [Description]
+```
+
+**Success Criteria**:
+✓ Relationship hints populated in each card
+✓ Bidirectional relationships (both cards reference each other)
+✓ Only relationships ≥70% strength displayed in graph
+✓ Relationship type matches actual connection
+✓ Weekly pruning removes weak relationships (<60%)
+
+### 4.4 Component: Graph Generation
+
+**Purpose**: Transform cards + relationships into visual Mermaid diagram
+
+**Generation Process**:
+1. Scan all context cards in `contexts/` folders
+2. Extract card IDs, types, and relationship hints
+3. Calculate relationship strengths
+4. Filter relationships (only ≥70% displayed)
+5. Generate Mermaid syntax (nodes + edges)
+6. Detect clusters (5-6+ highly connected cards)
+7. Apply styling (colors, edge thickness)
+8. Update `knowledge_graph.md`
+
+**Mermaid Syntax Rules**:
+```mermaid
+graph TD
+    %% 1. Define ALL nodes BEFORE edges
+    NODE_ID["emoji Display Name"]
+
+    %% 2. Create edges with type + strength
+    NODE_1 -->|relationship_type strength%| NODE_2
+
+    %% 3. Optional: Subgraphs for clusters
+    subgraph "Cluster Name"
+        NODE_1
+        NODE_2
+    end
+
+    %% 4. Apply styling classes
+    classDef method fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    class NODE_1 method
+```
+
+**Critical Rules**:
+- ✅ Every node defined before edges reference it
+- ✅ Node IDs use underscores (no spaces)
+- ✅ Display names in quotes (can have spaces)
+- ✅ Test syntax at mermaid.live before committing
+- ❌ Never reference undefined nodes
+- ❌ Never use spaces in node IDs
+
+**Success Criteria**:
+✓ Mermaid syntax valid (renders without errors)
+✓ All cards from `contexts/` included as nodes
+✓ No broken references (edges to non-existent nodes)
+✓ Stats match actual counts
+✓ Clusters detected and displayed
+✓ Styling applied correctly
+
+---
+
+## 5. Automation Agents
+
+### 5.1 Agent: session-closer
+
+**Role**: Extract knowledge cards from completed work sessions
+
+**When to Run**:
+- User says "close this session"
+- User says "extract knowledge from this session"
+- End of work day
+- Manual invocation
+
+**What It Does**:
+
+**Step 1: Analyze Session** (3 min)
+- Read entire session file or conversation transcript
+- Identify candidates for METHOD/INSIGHT/PROJECT cards
+- Apply extraction criteria (see section 4.2)
+- Count: How many of each card type?
+
+**Step 2: Create Cards** (5-10 min per card)
+- Copy appropriate template
+- Fill ALL sections (no placeholders)
+- Use descriptive names
+- Add concrete examples from session
+- Populate relationship hints
+
+**Step 3: Trigger Integration** (1 min)
+- Invoke knowledge-integrator agent
+- Pass list of newly created card IDs
+- Wait for integration completion
+
+**Step 4: Report Results** (1 min)
+- Output summary of cards created
+- List file paths
+- Show extraction time
+
+**Output Format**:
+```
+✅ Session Close Complete
+
+📊 Knowledge Extracted:
+- 2 METHOD cards created
+- 1 INSIGHT card created
+- 1 PROJECT card created
+
+📁 Cards saved to:
+- contexts/methods/METHOD_OAUTH_IMPLEMENTATION_20251009.md
+- contexts/methods/METHOD_TOKEN_REFRESH_20251009.md
+- contexts/insights/INSIGHT_AUTH_STATE_MANAGEMENT_20251009.md
+- contexts/projects/PROJECT_AUTH_OVERHAUL_20251009.md
+
+🔄 Next: knowledge-integrator will process relationships
+
+⏱️ Extraction time: 12 minutes
+```
+
+**Success Criteria**:
+✓ Only creates cards meeting extraction criteria
+✓ All card sections filled completely
+✓ Descriptive names (not generic)
+✓ Relationship hints populated
+✓ Triggers knowledge-integrator automatically
+✓ Reports clear summary
+
+### 5.2 Agent: knowledge-integrator
+
+**Role**: Maintain graph file, update Mermaid diagram, calculate relationships
+
+**When to Run**:
+- Triggered automatically by session-closer
+- User says "update the knowledge graph"
+- User says "rebuild the graph index"
+- Manual invocation
+
+**What It Does**:
+
+**Step 1: Scan Context Cards** (2-3 min)
+- Find all `.md` files in `contexts/` folders
+- Parse each for: ID, type, date, relationship hints
+- Build card inventory
+
+**Step 2: Extract Relationships** (3-4 min)
+- Read "Relationship Hints" section from each card
+- Parse relationship types (enables, validates, requires, etc.)
+- Build relationship list
+
+**Step 3: Calculate Strengths** (2-3 min)
+- Apply strength calculation algorithm (see section 4.3)
+- Filter: only keep relationships ≥70%
+- Sort by strength (strongest first)
+
+**Step 4: Generate Mermaid Diagram** (5 min)
+- Create node definitions (all cards)
+- Create edge definitions (filtered relationships)
+- Add styling classes
+- Detect clusters (5-6+ highly connected cards)
+- Validate syntax
+
+**Step 5: Update knowledge_graph.md** (3 min)
+- Update header stats
+- Replace Visual Graph section
+- Update Quick Stats table
+- Update All Cards section
+- Update Relationship Index
+
+**Step 6: Verify & Report** (1 min)
+- Test Mermaid syntax (mermaid.live or local preview)
+- Verify all sections updated
+- Report summary
+
+**Output Format**:
+```
+✅ Knowledge Graph Updated
+
+📊 Graph Status:
+- Total nodes: 6 (4 METHOD, 1 INSIGHT, 1 PROJECT)
+- Total relationships: 4 (70%+ threshold)
+- Average strength: 82.5%
+- Clusters detected: 1 (Authentication)
+
+🔗 Relationships by type:
+- enables: 2 (avg 82.5%)
+- validates: 1 (90%)
+- informs: 1 (75%)
+
+📈 Changes from last update:
+- Added 4 new cards
+- Added 4 new relationships
+- Detected 1 new cluster
+
+✅ Mermaid diagram verified and valid
+✅ All sections updated
+✅ Stats synchronized
+
+📁 Updated: knowledge_graph.md
+
+⏱️ Integration time: 8 minutes
+```
+
+**Success Criteria**:
+✓ All cards from `contexts/` included
+✓ Relationships calculated correctly
+✓ Mermaid syntax valid
+✓ Stats accurate
+✓ Clusters detected
+✓ Backup created before update
+
+### 5.3 Agent: context-ripple (Optional - Advanced)
+
+**Role**: Detect relationships between cards automatically
+
+**When to Run**:
+- After knowledge-integrator completes
+- When 3+ cards updated within 30 minutes
+- Weekly maintenance scan
+- Manual invocation
+
+**What It Does**:
+
+**Step 1: Temporal Analysis**
+- Identify cards created/updated together (same day or session)
+- Suggest temporal proximity relationships
+
+**Step 2: Semantic Analysis**
+- Compare card content for overlap
+- Calculate similarity scores
+- Suggest semantic relationships
+
+**Step 3: Explicit Reference Detection**
+- Find direct card mentions in content
+- Mark as explicit relationships (highest strength)
+
+**Step 4: Recommendation Output**
+- Generate list of suggested relationships
+- Include confidence scores
+- Explain reasoning for each
+
+**Success Criteria**:
+✓ Identifies relationships humans might miss
+✓ High confidence (≥80%) suggestions only
+✓ Explains reasoning clearly
+✓ No false positives (<10% error rate)
+
+---
+
+## 6. Visual Rendering
+
+### 6.1 Rendering Requirements
+
+**Purpose**: Make patterns obvious at a glance through visual representation
+
+**Display Elements**:
+1. **Nodes** - Each card as a visual element
+2. **Edges** - Relationships as connecting lines
+3. **Colors** - Card types distinguished by color
+4. **Thickness** - Edge strength shown by line thickness
+5. **Clusters** - Related cards visually grouped
+
+**Rendering Options**:
+
+**Option A: VS Code Preview** (Recommended for beginners)
+- Install Mermaid Markdown Syntax Highlighting extension
+- Open `knowledge_graph.md`
+- Click preview button
+- Zero setup, built-in
+
+**Option B: GitHub Rendering**
+- Push `knowledge_graph.md` to GitHub
+- View file on GitHub.com
+- Mermaid renders automatically
+- Good for sharing
+
+**Option C: mermaid.live Website**
+- Copy Mermaid diagram from file
+- Paste into https://mermaid.live
+- View interactive diagram
+- Export as PNG/SVG
+
+**Option D: Custom Web Dashboard**
+- React/Vue/vanilla JS app
+- Mermaid.js library for rendering
+- Interactive features (zoom, filter, search)
+- Most powerful but requires development
+
+### 6.2 Visual Design Specifications
+
+**Node Styling**:
+```
+METHOD cards:  📘 + Light blue background (#e1f5fe) + Blue border (#0277bd)
+INSIGHT cards: 💡 + Light orange background (#fff3e0) + Orange border (#f57c00)
+PROJECT cards: 🎯 + Light purple background (#f3e5f5) + Purple border (#7b1fa2)
+```
+
+**Edge Styling**:
+```
+Very Strong (90-100%): 3px solid line
+Strong (80-89%):       2px solid line
+Medium (70-79%):       2px solid line
+Weak (<70%):           Not displayed (below threshold)
+```
+
+**Cluster Styling**:
+```
+Subgraph with labeled box
+Background: Light gray (#f5f5f5)
+Border: Dashed line
+Label: Descriptive name (e.g., "Authentication Cluster")
+```
+
+### 6.3 Advanced Interactive Features (Production Implementation)
+
+**This section documents the actual D3.js implementation proven at 230+ nodes.**
+
+#### Core Physics Simulation
+
+**D3 Force-Directed Graph**:
+```typescript
+interface Node extends d3.SimulationNodeDatum {
+  id: string;
+  label: string;
+  type: 'project' | 'method' | 'insight' | 'unknown';
+  value: number;           // Size (base + connections * 3)
+  color: string;
+  connections?: number;     // Connection count
+}
+
+interface Link extends d3.SimulationLinkDatum<Node> {
+  source: string | Node;
+  target: string | Node;
+  strength: number;        // 0-1 scale
+  type: string;            // enables, validates, requires, etc.
+}
+
+// Force simulation configuration
+d3.forceSimulation<Node>(nodes)
+  .force('link', d3.forceLink<Node, Link>(links)
+    .id(d => d.id)
+    .distance(d => 100 / (d.strength || 1))  // Stronger = closer
+    .strength(d => d.strength || 0.5))
+  .force('charge', d3.forceManyBody<Node>()
+    .strength(d => d.type === 'core' ? -500 : -200))  // Repulsion
+  .force('center', d3.forceCenter(width / 2, height / 2))
+  .force('collision', d3.forceCollide<Node>()
+    .radius(d => (d.value || 10) + 10));  // Prevent overlap
+```
+
+**Why this works:**
+- Link force: Pulls connected nodes together (strength-based distance)
+- Charge force: Pushes all nodes apart (prevents clustering)
+- Center force: Keeps graph centered in viewport
+- Collision force: Prevents node overlap
+
+#### Interactive Features
+
+**1. Zoom & Pan** (0.1x to 4x scale)
+```typescript
+const zoom = d3.zoom<SVGSVGElement, unknown>()
+  .scaleExtent([0.1, 4])
+  .on('zoom', (event) => {
+    g.attr('transform', event.transform);
+  });
+
+svg.call(zoom);
+```
+
+**2. Drag Nodes** (with physics restart)
+```typescript
+nodes.call(d3.drag<SVGGElement, Node>()
+  .on('start', (event, d) => {
+    if (!event.active) simulation.alphaTarget(0.3).restart();
+    d.fx = d.x;
+    d.fy = d.y;
+  })
+  .on('drag', (event, d) => {
+    d.fx = event.x;
+    d.fy = event.y;
+  })
+  .on('end', (event, d) => {
+    if (!event.active) simulation.alphaTarget(0);
+    d.fx = null;
+    d.fy = null;
+  }));
+```
+
+**3. Click Node** → Open card file
+```typescript
+nodes.on('click', (event, d) => {
+  const cardType = d.id.split('_')[0].toLowerCase(); // method/insight/project
+  const cardUrl = `/api/markdown/kontextual-prism/contexts/${cardType}s/${d.id}.md`;
+  window.open(cardUrl, '_blank');
+});
+```
+
+**4. Hover Effects** (highlight + tooltip)
+- Hovering a node increases opacity to 1.0
+- Shows tooltip with metadata (type, connections, label)
+- Applies glow filter to hovered node
+
+**5. Search/Filter** (real-time)
+- Search query filters visible nodes by ID or label
+- Filtered nodes opacity: 0.2 (dimmed)
+- Matched nodes opacity: 1.0 (highlighted)
+- Search updates in <100ms
+
+#### Cluster Highlighting System
+
+**Architecture:**
+
+```typescript
+// 1. Parse clusters from Mermaid subgraphs
+interface ClusterData {
+  name: string;
+  emoji: string;
+  nodes: string[];  // Node IDs in this cluster
+  count: number;
+}
+
+// Extract from: subgraph "Cluster Name" ... end
+function parseClusterData(mermaidContent: string): ClusterData[]
+
+// 2. Build bidirectional node-cluster mapping
+function buildNodeClusterMap(
+  nodes: Node[],
+  clusters: ClusterData[]
+): Map<string, string>  // nodeId → clusterId
+
+// 3. Generate 15 distinct colors (HSL palette)
+function generateClusterColors(
+  clusterIds: string[]
+): Map<string, string>  // clusterId → hexColor
+```
+
+**Color Palette** (15 predefined colors for maximum distinction):
+```typescript
+const PALETTE = [
+  '#FF6B6B',  // Red       '#4ECDC4',  // Teal
+  '#45B7D1',  // Blue      '#FFA07A',  // Salmon
+  '#98D8C8',  // Mint      '#F7DC6F',  // Yellow
+  '#BB8FCE',  // Purple    '#F8B739',  // Orange
+  '#52B69A',  // Green     '#FF69B4',  // Hot Pink
+  '#00D4FF',  // Cyan      '#FFD93D',  // Gold
+  '#6BCB77',  // Lt Green  '#A8DADC',  // Lt Blue
+  '#F1FAEE'   // Off-white
+];
+
+// Beyond 15 clusters: HSL generation
+// Hue step: 360° / count
+// Saturation: 70% (high vibrancy)
+// Lightness: 50% (balanced contrast)
+```
+
+**Visual Effects:**
+
+**Cluster Glow Filter** (SVG):
+```xml
+<filter id="cluster-glow">
+  <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+  <feMerge>
+    <feMergeNode in="coloredBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+```
+
+**Opacity System:**
+- Cluster member nodes: **1.0** (fully visible)
+- Non-member nodes: **0.2** (heavily dimmed)
+- Member links: **0.5** (visible)
+- Non-member links: **0.1** (barely visible)
+
+**Transition Smoothness:**
+```typescript
+// 300ms transitions on cluster selection
+nodes.transition().duration(300)
+  .style('opacity', d => isInCluster(d) ? 1.0 : 0.2)
+  .style('fill', d => isInCluster(d) ? clusterColor : d.color);
+```
+
+#### Visualization Layers
+
+**Layer System:**
+```typescript
+type Layer = 'base' | 'temporal' | 'strength' | 'patterns' | 'predictions';
+```
+
+**1. Base Layer** (default)
+- Nodes: Type-based colors (METHOD blue, INSIGHT orange, PROJECT purple)
+- Edges: Neutral gray (#30363d)
+- Opacity: Based on connection count
+
+**2. Temporal Layer** (creation date coloring)
+```typescript
+// Color nodes by creation date (oldest → newest)
+const timeScale = d3.scaleSequential(d3.interpolateViridis)
+  .domain([minDate, maxDate]);
+
+nodes.style('fill', d => timeScale(d.createdAt));
+```
+
+**3. Strength Layer** (relationship emphasis)
+```typescript
+// Edge thickness by strength
+edges.style('stroke-width', d => (d.strength || 0.7) * 5);
+
+// Edge color by strength (blue gradient)
+const strengthScale = d3.scaleSequential(d3.interpolateBlues)
+  .domain([0, 1]);
+
+edges.style('stroke', d => strengthScale(d.strength));
+```
+
+**4. Patterns Layer** (future)
+- Detect recurring patterns (e.g., METHOD → PROJECT → INSIGHT chains)
+- Highlight pattern instances with special styling
+
+**5. Predictions Layer** (future)
+- Show suggested relationships (dashed lines)
+- Color by confidence (green = high, yellow = medium)
+
+#### Utility Modules
+
+**clusterParser.ts** - Extract clusters from Mermaid
+```typescript
+// Parse subgraph blocks from Mermaid diagram
+parseClusterData(markdownContent: string): ClusterData[]
+
+// Regex: /subgraph\s+"([^"]+)"\s+([\s\S]*?)\s+end/g
+// Extracts: cluster name, node IDs within subgraph
+```
+
+**clusterNodeMapping.ts** - Bidirectional mapping
+```typescript
+// Map node IDs to cluster IDs
+buildNodeClusterMap(
+  nodes: Node[],
+  clusters: ClusterData[]
+): Map<string, string>
+
+// Enables O(1) lookup: "Is node X in cluster Y?"
+```
+
+**clusterColors.ts** - Color palette generation
+```typescript
+// Generate N distinct colors using HSL
+generateHSLPalette(count: number): string[]
+
+// Utilities:
+hslToHex(h, s, l): string
+adjustBrightness(hex, percent): string
+getContrastingTextColor(bgColor): string
+```
+
+**mermaidToD3.ts** - Syntax parser
+```typescript
+// Convert Mermaid graph syntax to D3 JSON format
+parseMermaidToD3(mermaidContent: string): D3GraphData
+
+// Parses:
+// - Node definitions: NODE_ID["Label"]
+// - Edge definitions: A -->|type strength%| B
+// - Subgraphs: Cluster groupings
+// - Styling: classDef declarations
+```
+
+#### Performance Specifications
+
+**Rendering Performance** (230 nodes tested):
+- Initial render: **1.8-2.0 seconds** ✓
+- Physics simulation: Stabilizes in **3-4 seconds** ✓
+- Zoom/pan FPS: **35-45 FPS** ✓ (smooth)
+- Cluster switch: **<300ms transition** ✓
+- Search filter: **<100ms update** ✓
+
+**Optimization Techniques:**
+1. **Memoization** (React.useMemo):
+   - Cluster parsing (expensive regex)
+   - Node-cluster mapping (O(n) operation)
+   - Color generation (avoid recalculation)
+
+2. **Efficient Re-rendering**:
+   - useEffect dependencies prevent unnecessary renders
+   - Only update changed layers
+   - SVG DOM manipulation (not full React re-render)
+
+3. **Force Simulation Tuning**:
+   - Alpha decay: 0.0228 (standard)
+   - Velocity decay: 0.4 (smooth stopping)
+   - Distance threshold: 100 / strength (adaptive)
+
+4. **Memory Management**:
+   - Clear previous graph on data change
+   - Remove event listeners on unmount
+   - Cache WebSocket connection
+
+**Browser Compatibility:**
+- Chrome/Edge: Full support ✓
+- Firefox: Full support ✓
+- Safari: Full support (httpOnly cookies handled) ✓
+
+#### Success Criteria
+
+✓ **Force simulation** renders all 230+ nodes without lag
+✓ **Zoom/pan** maintains 35+ FPS
+✓ **Cluster highlighting** applies glow + opacity smoothly
+✓ **All layers** switch without errors
+✓ **Rendering speed** <2s for full graph
+✓ **Click handler** opens correct card file
+✓ **Search** filters nodes in <100ms
+✓ **Drag nodes** updates physics in real-time
+✓ **Transitions** smooth (300ms, no jank)
+✓ **Memory stable** (no leaks after 10+ interactions)
+
+---
+
+## 7. Query System
+
+### 7.1 Basic Queries (grep-based)
+
+**Purpose**: Find cards instantly using text search
+
+**Core Queries**:
+
+**Q1: List all cards of a type**
+```bash
+find contexts/methods -name "*.md" | sort
+find contexts/insights -name "*.md" | sort
+find contexts/projects -name "*.md" | sort
+```
+
+**Q2: Search card content**
+```bash
+grep -ri "authentication" contexts/ --color=always
+grep -ri "debugging\|debug" contexts/ --color=always
+```
+
+**Q3: Find related cards**
+```bash
+grep -r "METHOD_OAUTH" contexts/ -l
+# Lists all cards mentioning METHOD_OAUTH
+```
+
+**Q4: Count cards**
+```bash
+find contexts/ -name "*.md" | wc -l
+find contexts/methods -name "*.md" | wc -l
+```
+
+**Q5: Recent cards (last 7 days)**
+```bash
+find contexts/ -name "*.md" -mtime -7 | sort
+```
+
+**Q6: View specific card**
+```bash
+cat contexts/methods/METHOD_OODA_DEBUG_20251006.md
+```
+
+**Success Criteria**:
+✓ Queries return results in <50ms
+✓ grep finds text in card content
+✓ find locates cards by name pattern
+✓ Results sortable and filterable
+
+### 7.2 Query Helper Script (Optional)
+
+**Purpose**: Simplify common queries with a single command
+
+**Script Structure**:
+```bash
+#!/bin/bash
+# query.sh - Knowledge Graph Query Helper
+
+case "$1" in
+    "methods")
+        find contexts/methods -name "*.md" -exec basename {} .md \; | sort
+        ;;
+    "insights")
+        find contexts/insights -name "*.md" -exec basename {} .md \; | sort
+        ;;
+    "projects")
+        find contexts/projects -name "*.md" -exec basename {} .md \; | sort
+        ;;
+    "search")
+        grep -ri "$2" contexts/ --color=always -n
+        ;;
+    "card")
+        find contexts/ -name "$2.md" -exec cat {} \;
+        ;;
+    "related")
+        grep -r "$2" contexts/ -l | xargs -I {} basename {} .md
+        ;;
+    "count")
+        echo "METHODS:  $(find contexts/methods -name "*.md" | wc -l)"
+        echo "INSIGHTS: $(find contexts/insights -name "*.md" | wc -l)"
+        echo "PROJECTS: $(find contexts/projects -name "*.md" | wc -l)"
+        echo "TOTAL:    $(find contexts/ -name "*.md" | wc -l)"
+        ;;
+    *)
+        echo "Usage: ./query.sh {methods|insights|projects|search|card|related|count}"
+        ;;
+esac
+```
+
+**Usage Examples**:
+```bash
+./query.sh methods                           # List all METHOD cards
+./query.sh search authentication             # Search for "authentication"
+./query.sh card METHOD_OODA_DEBUG_20251006   # View specific card
+./query.sh related PROJECT_AUTH_20251001     # Find related cards
+./query.sh count                             # Count all cards
+```
+
+**Success Criteria**:
+✓ Single command for common queries
+✓ Results formatted clearly
+✓ Handles missing arguments gracefully
+✓ Extensible for new query types
+
+### 7.3 Advanced Queries (Optional)
+
+**Relationship Traversal**:
+```bash
+# Find all cards that METHOD_X enables
+grep "METHOD_X" contexts/ -A 5 | grep "Enables:"
+
+# Find all projects that applied METHOD_X
+grep "METHOD_X" contexts/projects/ -l
+```
+
+**Strength-based Queries**:
+```bash
+# Find all very strong relationships (≥90%)
+grep "Pattern Strength.*9[0-9]%" contexts/ -l
+
+# Find all medium relationships (70-79%)
+grep "Pattern Strength.*7[0-9]%" contexts/ -l
+```
+
+**Temporal Queries**:
+```bash
+# Cards from October 2025
+find contexts/ -name "*202510*.md"
+
+# Cards from specific session
+grep "Session: 2025-10-15_006" contexts/ -l
+```
+
+**Success Criteria**:
+✓ Can traverse relationships programmatically
+✓ Can filter by strength threshold
+✓ Can query by date/time period
+✓ Results accurate and complete
+
+---
+
+## 8. Implementation Checklist
+
+### 8.1 Phase 0: Session Tracking (20 minutes)
+
+**Goal**: Enable automatic extraction by capturing work context
+
+**Tasks**:
+- [ ] Create `sessions/` folder
+- [ ] Create session template file
+- [ ] Document daily workflow (morning/during/end)
+- [ ] Create first session file for today
+- [ ] Test: Can you capture today's work in 5-10 minutes?
+
+**Validation**:
+✓ Session template exists
+✓ First session file created
+✓ Workflow documented
+✓ Overhead acceptable (5-10 min daily)
+
+### 8.2 Phase 1: Core Setup (15 minutes)
+
+**Goal**: Create file structure and card templates
+
+**Tasks**:
+- [ ] Create directory structure (`contexts/methods/`, `contexts/insights/`, `contexts/projects/`)
+- [ ] Create `knowledge_graph.md` with Mermaid template
+- [ ] Create METHOD card template
+- [ ] Create INSIGHT card template
+- [ ] Create PROJECT card template
+- [ ] Create first card manually (document this process)
+
+**Validation**:
+✓ All folders exist
+✓ knowledge_graph.md renders valid Mermaid
+✓ All templates created
+✓ First card created successfully
+✓ Can preview Mermaid diagram
+
+### 8.3 Phase 2: Automation (30 minutes)
+
+**Goal**: Automate card extraction and graph updates
+
+**Tasks**:
+- [ ] Define session-closer agent behavior
+- [ ] Define knowledge-integrator agent behavior
+- [ ] Test extraction: Create 3 cards from a real session
+- [ ] Test integration: Verify graph updates automatically
+- [ ] Test end-to-end: Session → Extraction → Integration
+
+**Validation**:
+✓ session-closer extracts cards correctly
+✓ knowledge-integrator updates graph
+✓ Mermaid diagram includes new cards
+✓ Relationships calculated
+✓ Process takes <15 minutes end-to-end
+
+### 8.4 Phase 3: Visual Rendering
+
+> **⚠️ NOTE: This phase is OPTIONAL**
+>
+> You can use the Knowledge Graph LITE system without any custom visualization. Simply view the Mermaid diagram in your `knowledge_graph.md` file using:
+> - VS Code with Mermaid extension
+> - GitHub (auto-renders Mermaid)
+> - https://mermaid.live (paste and view)
+>
+> The advanced dashboard below is what the production system uses, but it's not required to get value from your knowledge graph.
+
+---
+
+#### **Advanced Interactive D3 Dashboard** (4-6 hours)
+
+**This is what the production system actually uses. Full D3.js force-directed graph with advanced features.**
+
+**Time breakdown:**
+- Setup & dependencies: 30 min
+- D3 force simulation: 1 hour
+- Cluster system: 1.5 hours
+- Interactive layers: 1 hour
+- Utilities & parsing: 1 hour
+- Testing & optimization: 1 hour
+
+**Prerequisites:**
+- Node.js 16+ and npm/yarn
+- React + TypeScript (or Vue/Angular equivalent)
+- Basic understanding of D3.js
+- Comfortable with web development
+
+---
+
+##### **Step B1: Project Setup** (30 min)
+
+```bash
+# Create React + TypeScript project
+npx create-react-app knowledge-graph-viz --template typescript
+cd knowledge-graph-viz
+
+# Install dependencies
+npm install d3 @types/d3
+npm install zustand  # State management (optional)
+```
+
+**File structure:**
+```
+src/
+├── components/
+│   ├── D3KnowledgeGraph.tsx       # Main graph component
+│   ├── KnowledgeGraphTab.tsx      # Container component
+│   └── islands/
+│       ├── ClusterDropdown.tsx    # Cluster selector
+│       ├── CompactMetrics.tsx     # Statistics
+│       └── RelationshipLegend.tsx # Legend
+├── utils/
+│   ├── mermaidToD3.ts             # Parse Mermaid → D3
+│   ├── clusterParser.ts           # Extract clusters
+│   ├── clusterNodeMapping.ts      # Node-cluster map
+│   └── clusterColors.ts           # Color generation
+├── styles/
+│   └── d3-knowledge-graph.css     # Graph styling
+└── services/
+    └── websocket.ts               # Real-time updates (optional)
+```
+
+---
+
+##### **Step B2: D3 Force Simulation** (1 hour)
+
+**Create `D3KnowledgeGraph.tsx`:**
+
+```typescript
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+
+interface Node extends d3.SimulationNodeDatum {
+  id: string;
+  label: string;
+  type: 'project' | 'method' | 'insight' | 'unknown';
+  value: number;      // Size
+  color: string;
+  connections?: number;
+}
+
+interface Link extends d3.SimulationLinkDatum<Node> {
+  source: string | Node;
+  target: string | Node;
+  strength: number;
+  type: string;
+}
+
+const D3KnowledgeGraph: React.FC<{
+  width?: number;
+  height?: number;
+  data?: { nodes: Node[]; links: Link[] };
+}> = ({ width = 1200, height = 800, data }) => {
+  const svgRef = useRef<SVGSVGElement>(null);
+
+  useEffect(() => {
+    if (!svgRef.current || !data) return;
+
+    // Clear previous
+    d3.select(svgRef.current).selectAll('*').remove();
+
+    const svg = d3.select(svgRef.current)
+      .attr('viewBox', `0 0 ${width} ${height}`)
+      .style('background', '#0d1117');
+
+    // Zoom behavior
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.1, 4])
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+      });
+
+    svg.call(zoom);
+    const g = svg.append('g');
+
+    // Force simulation
+    const simulation = d3.forceSimulation<Node>(data.nodes)
+      .force('link', d3.forceLink<Node, Link>(data.links)
+        .id(d => d.id)
+        .distance(d => 100 / (d.strength || 1))
+        .strength(d => d.strength || 0.5))
+      .force('charge', d3.forceManyBody<Node>()
+        .strength(-200))
+      .force('center', d3.forceCenter(width / 2, height / 2))
+      .force('collision', d3.forceCollide<Node>()
+        .radius(d => (d.value || 10) + 10));
+
+    // Create links
+    const links = g.append('g')
+      .selectAll('line')
+      .data(data.links)
+      .enter().append('line')
+      .style('stroke', '#30363d')
+      .style('stroke-width', d => Math.sqrt(d.strength || 1) * 2)
+      .style('stroke-opacity', 0.6);
+
+    // Create nodes
+    const nodes = g.append('g')
+      .selectAll<SVGGElement, Node>('g')
+      .data(data.nodes)
+      .enter().append('g')
+      .attr('cursor', 'pointer')
+      .call(d3.drag<SVGGElement, Node>()
+        .on('start', dragStarted)
+        .on('drag', dragged)
+        .on('end', dragEnded));
+
+    nodes.append('circle')
+      .attr('r', d => d.value || 10)
+      .style('fill', d => d.color);
+
+    nodes.append('text')
+      .text(d => d.label)
+      .attr('x', 12)
+      .attr('y', 4)
+      .style('font-size', '10px')
+      .style('fill', '#c9d1d9');
+
+    // Update positions on simulation tick
+    simulation.on('tick', () => {
+      links
+        .attr('x1', d => (d.source as Node).x!)
+        .attr('y1', d => (d.source as Node).y!)
+        .attr('x2', d => (d.target as Node).x!)
+        .attr('y2', d => (d.target as Node).y!);
+
+      nodes.attr('transform', d => `translate(${d.x},${d.y})`);
+    });
+
+    // Drag functions
+    function dragStarted(event: any, d: Node) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+    }
+
+    function dragged(event: any, d: Node) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragEnded(event: any, d: Node) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.fx = null;
+      d.fy = null;
+    }
+
+    // Cleanup
+    return () => {
+      simulation.stop();
+    };
+  }, [data, width, height]);
+
+  return <svg ref={svgRef} width={width} height={height} />;
+};
+
+export default D3KnowledgeGraph;
+```
+
+**Test it:**
+```typescript
+// App.tsx
+const testData = {
+  nodes: [
+    { id: 'A', label: 'Node A', type: 'method', value: 15, color: '#58a6ff' },
+    { id: 'B', label: 'Node B', type: 'insight', value: 15, color: '#f78166' },
+  ],
+  links: [
+    { source: 'A', target: 'B', strength: 0.8, type: 'enables' }
+  ]
+};
+
+<D3KnowledgeGraph data={testData} />
+```
+
+---
+
+##### **Step B3: Cluster System** (1.5 hours)
+
+**Create `clusterParser.ts`:**
+```typescript
+export interface ClusterData {
+  name: string;
+  emoji: string;
+  nodes: string[];
+  count: number;
+}
+
+export function parseClusterData(mermaidContent: string): ClusterData[] {
+  const mermaidMatch = mermaidContent.match(/```mermaid([\s\S]*?)```/);
+  if (!mermaidMatch) return [];
+
+  const content = mermaidMatch[1];
+  const subgraphPattern = /subgraph\s+"([^"]+)"\s+([\s\S]*?)\s+end/g;
+  const clusters: ClusterData[] = [];
+
+  let match;
+  while ((match = subgraphPattern.exec(content)) !== null) {
+    const name = match[1];
+    const nodeLines = match[2]
+      .split('\n')
+      .map(l => l.trim())
+      .filter(l => l && !l.includes('-->'));
+
+    clusters.push({
+      name: name.replace(' Cluster', ''),
+      emoji: getEmojiForName(name),
+      nodes: nodeLines,
+      count: nodeLines.length
+    });
+  }
+
+  return clusters;
+}
+
+function getEmojiForName(name: string): string {
+  const lower = name.toLowerCase();
+  if (lower.includes('debug')) return '🐛';
+  if (lower.includes('auth')) return '🔐';
+  if (lower.includes('deploy')) return '🚀';
+  return '📦';
+}
+```
+
+**Create `clusterColors.ts`:**
+```typescript
+const PALETTE = [
+  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A',
+  '#98D8C8', '#F7DC6F', '#BB8FCE', '#F8B739',
+  '#52B69A', '#FF69B4', '#00D4FF', '#FFD93D',
+  '#6BCB77', '#A8DADC', '#F1FAEE'
+];
+
+export function generateClusterColors(
+  clusterIds: string[]
+): Map<string, string> {
+  const map = new Map<string, string>();
+  clusterIds.forEach((id, i) => {
+    map.set(id, PALETTE[i % PALETTE.length]);
+  });
+  return map;
+}
+```
+
+**Add cluster highlighting to D3 component:**
+```typescript
+// In D3KnowledgeGraph, add cluster highlighting logic
+nodes.append('circle')
+  .attr('r', d => d.value || 10)
+  .style('fill', d => {
+    if (selectedClusterId && nodeClusterMap.has(d.id)) {
+      const cluster = nodeClusterMap.get(d.id);
+      if (cluster === selectedClusterId) {
+        return clusterColors.get(selectedClusterId) || d.color;
+      }
+    }
+    return d.color;
+  })
+  .style('opacity', d => {
+    if (selectedClusterId) {
+      return nodeClusterMap.get(d.id) === selectedClusterId ? 1.0 : 0.2;
+    }
+    return 1.0;
+  });
+```
+
+---
+
+##### **Step B4: Interactive Layers** (1 hour)
+
+**Add layer switching:**
+```typescript
+type Layer = 'base' | 'temporal' | 'strength';
+
+// In component props
+const [activeLayer, setActiveLayer] = useState<Layer>('base');
+
+// Update node fill based on layer
+nodes.style('fill', d => {
+  if (activeLayer === 'temporal' && d.createdAt) {
+    const scale = d3.scaleSequential(d3.interpolateViridis)
+      .domain([minDate, maxDate]);
+    return scale(new Date(d.createdAt).getTime());
+  }
+  return d.color;
+});
+
+// Update edge style based on layer
+links.style('stroke-width', d => {
+  if (activeLayer === 'strength') {
+    return (d.strength || 0.7) * 5;
+  }
+  return 2;
+});
+```
+
+---
+
+##### **Step B5: Mermaid Parser** (1 hour)
+
+**Create `mermaidToD3.ts`:**
+```typescript
+export function parseMermaidToD3(content: string): {
+  nodes: Node[];
+  links: Link[];
+} {
+  const nodes: Node[] = [];
+  const links: Link[] = [];
+
+  // Parse node definitions: NODE_ID["Label"]
+  const nodePattern = /(\w+)\["(.+)"\]/g;
+  let match;
+  while ((match = nodePattern.exec(content)) !== null) {
+    const [, id, label] = match;
+    const type = getTypeFromId(id);
+    nodes.push({
+      id,
+      label,
+      type,
+      value: 15,
+      color: getColorForType(type)
+    });
+  }
+
+  // Parse edges: A -->|type strength%| B
+  const edgePattern = /(\w+)\s*-->(?:\|(.+?)\|)?\s*(\w+)/g;
+  while ((match = edgePattern.exec(content)) !== null) {
+    const [, source, label, target] = match;
+    const strengthMatch = label?.match(/(\d+)%/);
+    const strength = strengthMatch ? parseInt(strengthMatch[1]) / 100 : 0.7;
+
+    links.push({
+      source,
+      target,
+      strength,
+      type: label?.split(' ')[0] || 'relates'
+    });
+  }
+
+  return { nodes, links };
+}
+```
+
+---
+
+##### **Step B6: Testing & Optimization** (1 hour)
+
+**Performance testing:**
+```typescript
+// Measure render time
+console.time('graph-render');
+// ... render code
+console.timeEnd('graph-render');
+// Target: <2s for 230 nodes
+
+// Measure FPS during interaction
+let frames = 0;
+let lastTime = performance.now();
+function measureFPS() {
+  frames++;
+  const now = performance.now();
+  if (now >= lastTime + 1000) {
+    console.log('FPS:', frames);
+    frames = 0;
+    lastTime = now;
+  }
+  requestAnimationFrame(measureFPS);
+}
+```
+
+**Optimization checklist:**
+- [ ] Use React.useMemo for cluster parsing
+- [ ] Only re-render on data changes (useEffect deps)
+- [ ] Limit force simulation iterations (alphaMin: 0.001)
+- [ ] Remove old event listeners on update
+- [ ] Test with 230+ nodes
+
+---
+
+**Validation**:
+✓ Force simulation renders 230+ nodes smoothly
+✓ Zoom/pan maintains 35+ FPS
+✓ Cluster highlighting with glow effect works
+✓ All layers switch without errors
+✓ Click opens correct card file
+✓ Drag updates physics in real-time
+✓ Search filters in <100ms
+✓ Memory stable after 10+ interactions
+
+**When this dashboard is worth building:**
+- Need production-quality interactive visualization
+- Want to explore relationships dynamically
+- Building for team/public use
+- Need advanced analytics and insights
+- Have development resources (4-6 hours)
+
+**Production Note:**
+This implementation is proven at 230+ nodes with consistent performance (1.8-2s initial render, 35-45 FPS interaction, <300ms layer transitions).
+
+### 8.5 Phase 4: Query System (15 minutes)
+
+**Goal**: Enable fast card searches
+
+**Tasks**:
+- [ ] Test basic grep queries (search, list, count)
+- [ ] Create query helper script (optional)
+- [ ] Document common query patterns
+- [ ] Test query performance (<50ms)
+
+**Validation**:
+✓ Can find any card in <50ms
+✓ Search works across all content
+✓ Queries documented
+✓ Helper script functional (if created)
+
+### 8.6 Phase 5: Maintenance (Ongoing)
+
+**Goal**: Keep graph healthy and useful
+
+**Tasks**:
+- [ ] Weekly: Review relationship strengths, prune weak ones
+- [ ] Monthly: Check for duplicate cards, merge if needed
+- [ ] Quarterly: Evaluate card quality, archive outdated ones
+- [ ] At 230 nodes: Archive graph, start fresh
+
+**Validation**:
+✓ Weekly maintenance takes <30 minutes
+✓ No duplicate knowledge
+✓ Relationship quality high (≥75% avg)
+✓ Graph remains useful over time
+
+---
+
+## 9. Validation Tests
+
+### 9.1 Test 1: Card Creation
+
+**Objective**: Verify cards follow structure correctly
+
+**Test Steps**:
+1. Create one card of each type (METHOD, INSIGHT, PROJECT)
+2. Verify all required sections present
+3. Check naming convention compliance
+4. Confirm relationship hints populated
+5. Review content quality (concrete, not vague)
+
+**Pass Criteria**:
+✓ All sections present and filled
+✓ Names follow TYPE_DESCRIPTIVE_NAME_YYYYMMDD format
+✓ Relationship hints reference actual cards
+✓ Content specific and actionable
+
+### 9.2 Test 2: Graph Generation
+
+**Objective**: Verify graph updates correctly
+
+**Test Steps**:
+1. Create 3 new cards with relationships
+2. Run knowledge-integrator
+3. Check knowledge_graph.md updated
+4. Verify Mermaid syntax valid
+5. Confirm stats accurate
+6. Test rendering in chosen viewer
+
+**Pass Criteria**:
+✓ All 3 cards appear as nodes
+✓ Relationships shown as edges
+✓ Stats match actual counts
+✓ Mermaid renders without errors
+✓ Update took <10 minutes
+
+### 9.3 Test 3: Session Extraction
+
+**Objective**: Verify automatic extraction works
+
+**Test Steps**:
+1. Create a session file with significant work
+2. Trigger session-closer agent
+3. Verify cards created automatically
+4. Check card quality (all sections filled)
+5. Confirm relationship hints added
+6. Test that knowledge-integrator ran automatically
+
+**Pass Criteria**:
+✓ Cards created match extraction criteria
+✓ All sections filled (no placeholders)
+✓ Relationship hints populated
+✓ Graph updated automatically
+✓ Total time <15 minutes
+
+### 9.4 Test 4: Query Performance
+
+**Objective**: Verify fast searches
+
+**Test Steps**:
+1. Create 20+ cards
+2. Run grep search for keyword
+3. Measure query time
+4. Test different query types (list, count, search, related)
+5. Verify result accuracy
+
+**Pass Criteria**:
+✓ Searches complete in <50ms
+✓ Results accurate and complete
+✓ Query types all functional
+✓ No false positives/negatives
+
+### 9.5 Test 5: Relationship Quality
+
+**Objective**: Verify relationships meaningful
+
+**Test Steps**:
+1. Review 10 random relationships
+2. Check if connection makes sense
+3. Verify strength calculation reasonable
+4. Confirm bidirectional (both cards reference each other)
+5. Test that weak relationships (<70%) not displayed
+
+**Pass Criteria**:
+✓ 90%+ relationships logically sound
+✓ Strengths correlate with actual connection quality
+✓ Bidirectional references present
+✓ Weak relationships filtered out
+
+### 9.6 Test 6: End-to-End Workflow
+
+**Objective**: Verify complete workflow from work → graph
+
+**Test Steps**:
+1. Start: Empty session file
+2. Do real work for 2+ hours
+3. Document work in session file (5-10 min)
+4. Trigger session-closer
+5. Verify cards extracted
+6. Check graph updated
+7. Query for new cards
+8. View in graph visualization
+
+**Pass Criteria**:
+✓ Session → Cards pipeline works
+✓ Cards → Graph pipeline works
+✓ Total overhead <20 minutes
+✓ All new knowledge captured
+✓ Graph remains coherent and useful
+
+---
+
+## 10. Example Data
+
+### 10.1 Example Session File
+
+```markdown
+# Session 2025-11-05
+
+**Started:** 09:00
+**Goal:** Implement JWT authentication with token refresh
+**Expected Duration:** 4 hours
+
+---
+
+## Work Log
+
+**09:00** - Research OAuth 2.0 and JWT best practices
+- Reviewing RFC 6749 (OAuth 2.0)
+- Comparing HS256 vs RS256 signing
+
+**09:45** - Design decision: RS256 over HS256
+- RS256 provides better key management
+- Slight performance trade-off acceptable for security
+
+**10:00** - Implementing authorization code flow
+- Set up auth endpoint
+- Added PKCE for mobile/SPA protection
+- Token generation with 15-minute expiry
+
+**12:00** - Built token refresh mechanism
+- 30-day refresh token in httpOnly cookie
+- Automatic rotation on every use
+- Prevents replay attacks
+
+**13:30** - Added security headers
+- CSP, X-Frame-Options, X-Content-Type-Options
+- httpOnly + Secure flags on cookies
+
+**14:30** - End-to-end testing complete
+- All auth flows working
+- Zero security warnings from scanner
+
+---
+
+## Decisions Made
+
+1. **RS256 over HS256**: Asymmetric signing provides better key management, especially for distributed systems. Performance overhead acceptable.
+
+2. **15-minute access tokens**: Short expiry limits blast radius if token compromised. Refresh mechanism makes UX seamless.
+
+3. **Refresh token rotation**: Prevents replay attacks. Invalidates old tokens automatically. Critical security improvement.
+
+4. **httpOnly cookies**: Prevents XSS token theft. Better than localStorage for web apps. Non-negotiable security requirement.
+
+---
+
+## Problems Solved
+
+| Problem | Solution | Result |
+|---------|----------|--------|
+| Refresh race conditions | Added mutex locking | Zero concurrent refresh conflicts |
+| Token storage security | httpOnly + Secure cookies | Passes security audit |
+| PKCE verification complexity | Used proven library | Clean implementation, well-tested |
+
+---
+
+## Code/Files Modified
+
+- `auth/oauth.ts`: Authorization code flow implementation
+- `auth/token.ts`: Token generation and validation
+- `auth/refresh.ts`: Refresh mechanism with rotation
+- `middleware/security.ts`: Security headers
+- `tests/auth.test.ts`: Comprehensive auth flow tests
+
+---
+
+## Patterns Noticed
+
+- Stateless auth simplifies horizontal scaling significantly
+- Short-lived access tokens are the right trade-off between security and UX
+- Refresh token rotation critical for security but adds complexity
+- Cookie-based storage prevents entire class of XSS vulnerabilities
+
+---
+
+## Session Outcomes
+
+**Total Time:** 4h 15m
+**Status:** Complete
+**Next Steps:** Monitor production for edge cases, document auth flow for team
+
+---
+
+_Ready for session-closer to extract cards_
+```
+
+### 10.2 Example METHOD Card
+
+```markdown
+# METHOD_OODA_LOOP_DEBUGGING_20251002
+
+**Date**: 2025-10-02
+**Type**: Debugging Framework
+**Session**: 2025-10-01_007
+
+## Overview
+Apply the Observe-Orient-Decide-Act (OODA) cycle for rapid bug isolation and resolution. Each loop refines understanding and narrows the problem space. Multiple sequential loops build comprehensive mental models of complex issues.
+
+## Pattern Structure
+
+### Loop 1: Initial Discovery
+**Observe**: What is the symptom? What should happen vs what actually happens?
+**Orient**: What systems are involved? What changed recently?
+**Decide**: What is the most likely cause based on available evidence?
+**Act**: Apply targeted fix, measure outcome
+
+### Loop 2+: Refinement
+If Loop 1 doesn't fully resolve:
+**Observe**: Did the fix change behavior? What symptoms remain?
+**Orient**: Update mental model with new evidence
+**Decide**: Identify next most likely cause
+**Act**: Apply next fix, measure again
+
+### Termination Condition
+Loop completes when: symptom eliminated AND root cause understood AND fix validated
+
+## Example from Session 2025-10-01_007
+
+### OODA Loop 1: CSS Hierarchy Investigation
+- **Observe**: Dynamic Log tables not rendering with correct styles
+- **Orient**: ChatMap tables work, Dynamic Log tables broken. Same CSS file.
+- **Decide**: Must be DOM hierarchy difference - check component wrappers
+- **Act**: Discovered LivingIntelligenceRenderer adds .markdown-container wrapper
+- **Result**: Updated 40+ CSS selectors
+- **Duration**: 4 minutes
+
+### OODA Loop 2: Markdown Structure Investigation
+- **Observe**: Tables still fragmenting into multiple tables
+- **Orient**: CSS hierarchy fixed, rendering working, but structure wrong
+- **Decide**: Must be markdown source structure issue - check for blank lines
+- **Act**: Found blank lines between table rows breaking continuity
+- **Result**: Removed all blank lines, created single continuous table
+- **Duration**: 2 minutes
+
+**Total Resolution Time**: 6 minutes for complex CSS + markdown rendering bug
+
+## Benefits
+
+### Speed
+- Rapid iteration (minutes per loop)
+- Focused investigation (no random changes)
+- Clear progress indicators
+
+### Clarity
+- Explicit decision points
+- Documented reasoning chain
+- Reproducible process
+
+### Learning
+- Each loop builds understanding
+- Failed loops provide valuable data
+- Pattern recognition improves over time
+
+## When to Use
+- Complex bugs with multiple potential causes
+- Time-critical production issues
+- Debugging unfamiliar systems
+- When random changes aren't working
+
+## Success Metrics
+- **Attempts**: 15+
+- **Success Rate**: 92%
+- **Time to Solution**: 6-20 minutes average
+- **Last Used**: 2025-10-02
+
+---
+
+## Relationship Hints
+
+**Combines With:**
+- Differential Analysis (working vs broken comparison)
+- Five Whys methodology
+
+**Enables:**
+- Rapid bug resolution
+- Systematic investigation
+- Knowledge extraction
+
+**Related To:**
+- METHOD_ADAPTIVE_DEBUG_PROTOCOL
+- METHOD_MULTI_FRAMEWORK_ROOT_CAUSE_ANALYSIS
+
+**Validated By:**
+- Session 2025-10-01_007 (2 loops, 6 minutes, complete resolution)
+
+**Pattern Strength**: Very High (92%)
+
+**Temporal Proximity**: Created same session as TABLE_CONTINUITY_PRINCIPLE discovery
+```
+
+### 10.3 Example INSIGHT Card
+
+```markdown
+# INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003
+
+**Date**: 2025-10-03
+**Type**: Error Pattern
+**Session**: 2025-10-01_008
+
+## Overview
+Authentication failures cascade through systems, masking underlying bugs. Fix the auth error, and 3+ other bugs suddenly surface. This pattern appears consistently in integrated systems where auth is a prerequisite for other operations.
+
+## Pattern Structure
+
+**Primary Error**: Authentication failure (token expired, invalid credentials, etc.)
+
+**Cascade Mechanism**: Auth failure prevents subsequent operations from executing
+
+**Hidden Errors**: Other bugs exist but can't manifest because auth blocks execution
+
+**Revelation**: Once auth fixed, hidden bugs execute and surface
+
+## Evidence
+
+- **Instance 1**: JWT refresh bug (2025-10-02) - Fixed auth, revealed 3 UI state bugs
+- **Instance 2**: Payment flow integration (2025-09-10) - Fixed credentials, revealed validation bugs
+- **Instance 3**: API gateway upgrade (2025-08-15) - Fixed CORS, revealed rate limiting bugs
+- **Instance 4**: SSO implementation (2025-07-20) - Fixed redirect, revealed session state bugs
+
+**Confidence Level**: High (observed 4+ times across different systems)
+
+## Why This Matters
+
+**Debugging Strategy**: Don't assume single fix resolves everything. Plan for cascades.
+
+**Testing Strategy**: Test auth-blocked paths separately to reveal hidden bugs early.
+
+**Architecture Insight**: Auth position in call chain amplifies its masking effect.
+
+## Applications
+
+**Development Context:**
+- Expect cascades when fixing auth bugs
+- Budget extra time for follow-up bugs
+- Test downstream operations in isolation
+
+**Architecture Context:**
+- Consider fail-fast auth checks to reduce cascade depth
+- Design systems to reveal errors independently
+- Avoid deep auth-dependency chains
+
+**Debugging Context:**
+- Fix auth first, then reassess entire system
+- Don't close tickets until cascade verified
+- Document cascade depth for future reference
+
+## Counter-Examples
+
+_Situations where this pattern doesn't apply_
+
+- **Simple systems**: Single-purpose apps without integration cascades
+- **Auth-independent flows**: Operations that don't require authentication
+
+---
+
+## Relationship Hints
+
+**Enables:**
+- Better debugging strategies
+- More accurate time estimates
+- Improved system architecture
+
+**Validates:**
+- METHOD_OODA_LOOP_DEBUGGING (found using OODA methodology)
+- METHOD_COMPREHENSIVE_RIPPLE_ANALYSIS
+
+**Informs:**
+- Testing strategy for integrated systems
+- Architectural decisions about auth placement
+
+**Related To:**
+- INSIGHT_MULTI_BUG_CLUSTERING
+- INSIGHT_FAIL_FAST_ARCHITECTURE
+
+**Pattern Strength**: 85% (strong evidence, multiple instances)
+
+**Temporal Proximity**: Discovered during JWT auth implementation (PROJECT_AUTH_20251001)
+```
+
+### 10.4 Example PROJECT Card
+
+```markdown
+# PROJECT_AUTH_SYSTEM_IMPLEMENTATION_20251001
+
+## Session Summary
+- **Date**: 2025-10-01
+- **Duration**: 4h 15m
+- **Session ID**: 2025-11-05_001
+- **Source**: sessions/session_2025-11-05.md
+
+## Primary Goal
+Implement secure JWT-based authentication with token refresh mechanism to replace session-based auth, enabling horizontal scaling and improving security posture.
+
+## Accomplished
+- **Phase 1**: OAuth 2.0 research and design decisions
+- **Phase 2**: Authorization code flow implementation with PKCE
+- **Phase 3**: Token refresh mechanism with automatic rotation
+- **Phase 4**: Security hardening (headers, cookies, validation)
+- **Phase 5**: End-to-end testing and validation
+
+## Progress Made
+- **Phases**: 5/5 (100% complete)
+- **Success Rate**: 100%
+- **No deviations**: All phases executed as planned
+
+## Key Decisions
+
+### Decision 1: RS256 over HS256
+- **What**: Use asymmetric signing for JWT tokens
+- **Benefits**: Better key management, enables distributed verification
+- **Decision made because**: Security improvement worth slight performance overhead
+
+### Decision 2: 15-minute access token expiry
+- **What**: Short-lived access tokens with refresh mechanism
+- **Benefits**: Limits blast radius if token compromised
+- **Decision made because**: Security-UX trade-off heavily favors security
+
+### Decision 3: Refresh token rotation
+- **What**: Invalidate old refresh token on every use
+- **Benefits**: Prevents replay attacks, auto-detects token theft
+- **Decision made because**: Critical security feature for modern auth
+
+### Decision 4: httpOnly cookies for token storage
+- **What**: Store tokens in httpOnly + Secure cookies, not localStorage
+- **Benefits**: Prevents XSS token theft entirely
+- **Decision made because**: Eliminates entire class of vulnerabilities
+
+## Files Modified/Created
+
+### New Files
+1. `auth/oauth.ts` - OAuth 2.0 authorization flow
+2. `auth/token.ts` - JWT generation and validation
+3. `auth/refresh.ts` - Refresh mechanism with rotation
+4. `middleware/security.ts` - Security headers and cookie config
+5. `tests/auth.test.ts` - Comprehensive auth flow tests
+
+### Modified Files
+1. `app/routes.ts` - Added auth endpoints
+2. `middleware/index.ts` - Integrated auth middleware
+3. `config/security.ts` - Updated security configuration
+
+## Technical Achievements
+
+### Performance Metrics
+- Token generation: <5ms
+- Token validation: <2ms
+- Refresh flow: <50ms end-to-end
+- Zero security warnings from scanner
+
+### Code Quality
+- 100% test coverage on auth flows
+- Comprehensive error handling
+- Well-documented API
+- Type-safe throughout
+
+## Unexpected Discoveries
+
+### Discovery 1: Refresh Race Conditions
+- **Found**: Concurrent refresh requests caused token conflicts
+- **Solution**: Added mutex locking at application layer
+- **Impact**: Zero race conditions in testing
+
+### Discovery 2: Cookie Security Nuances
+- **Found**: Safari handles httpOnly differently than Chrome
+- **Solution**: Added browser-specific cookie configuration
+- **Impact**: Cross-browser compatibility maintained
+
+## Methods Applied
+- **METHOD_ASYNC_DEBUG_SYSTEMATIC_20251002**: Used for race condition debugging
+- **METHOD_OODA_LOOP_DEBUGGING_20251002**: Applied during cookie security investigation
+
+## Insights Discovered
+- **INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003**: Authentication bugs hide downstream bugs
+- **INSIGHT_STATELESS_AUTH_BENEFITS**: Discovered that stateless auth dramatically simplifies scaling
+
+## Lessons Learned
+
+1. **Refresh token rotation adds complexity but worth it** - Security benefit clear, implementation well-documented
+2. **httpOnly cookies are non-negotiable** - Prevents entire class of XSS attacks
+3. **Testing auth flows requires patience** - Many edge cases, all must be covered
+4. **Stateless auth simplifies everything** - No session storage, no sticky sessions, clean horizontal scaling
+
+---
+
+## Relationship Hints
+
+**Applied:**
+- METHOD_ASYNC_DEBUG_SYSTEMATIC_20251002 (race condition debugging)
+- METHOD_OODA_LOOP_DEBUGGING_20251002 (cookie security investigation)
+
+**Validated:**
+- INSIGHT_STATELESS_AUTH_BENEFITS (confirmed during implementation)
+
+**Discovered:**
+- INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003 (emerged during testing)
+- METHOD_JWT_TOKEN_REFRESH_PATTERN (extracted from implementation)
+
+**Enabled by:**
+- Prior experience with OAuth 2.0
+- Security-first architecture mindset
+
+**Enables:**
+- Horizontal scaling of application
+- Improved security posture
+- Foundation for API authentication
+
+**Pattern Strength**: 95% (complete success, well-documented)
+```
+
+### 10.5 Example Graph Output
+
+```markdown
+# Knowledge Graph LITE
+**Last Updated**: 2025-11-05 14:30:00
+**Total Cards**: 4 METHOD, 2 INSIGHT, 1 PROJECT
+**Total Relationships**: 6
+
+## Visual Graph
+
+```mermaid
+graph TD
+    %% METHOD Nodes
+    METHOD_OODA_DEBUG["📘 OODA Loop Debugging"]
+    METHOD_ASYNC_DEBUG["📘 Async Debug Systematic"]
+    METHOD_JWT_REFRESH["📘 JWT Token Refresh"]
+    METHOD_RIPPLE_ANALYSIS["📘 Comprehensive Ripple Analysis"]
+
+    %% INSIGHT Nodes
+    INSIGHT_AUTH_CASCADES["💡 Auth Errors Mask Cascades"]
+    INSIGHT_STATELESS_BENEFITS["💡 Stateless Auth Benefits"]
+
+    %% PROJECT Nodes
+    PROJECT_AUTH_IMPL["🎯 Auth System Implementation"]
+
+    %% Relationships
+    PROJECT_AUTH_IMPL -->|applied 90%| METHOD_ASYNC_DEBUG
+    PROJECT_AUTH_IMPL -->|applied 85%| METHOD_OODA_DEBUG
+    PROJECT_AUTH_IMPL -->|discovered 95%| INSIGHT_AUTH_CASCADES
+    PROJECT_AUTH_IMPL -->|validated 90%| INSIGHT_STATELESS_BENEFITS
+    METHOD_OODA_DEBUG -->|combines_with 80%| METHOD_ASYNC_DEBUG
+    INSIGHT_AUTH_CASCADES -->|informs 75%| METHOD_RIPPLE_ANALYSIS
+
+    %% Subgraphs (Clusters)
+    subgraph "Authentication Cluster"
+        PROJECT_AUTH_IMPL
+        METHOD_JWT_REFRESH
+        INSIGHT_STATELESS_BENEFITS
+        INSIGHT_AUTH_CASCADES
+    end
+
+    subgraph "Debugging Cluster"
+        METHOD_OODA_DEBUG
+        METHOD_ASYNC_DEBUG
+        METHOD_RIPPLE_ANALYSIS
+    end
+
+    %% Styling
+    classDef method fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    classDef insight fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef project fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+
+    class METHOD_OODA_DEBUG,METHOD_ASYNC_DEBUG,METHOD_JWT_REFRESH,METHOD_RIPPLE_ANALYSIS method
+    class INSIGHT_AUTH_CASCADES,INSIGHT_STATELESS_BENEFITS insight
+    class PROJECT_AUTH_IMPL project
+```
+
+## Quick Stats
+
+| Metric | Count |
+|--------|-------|
+| METHOD cards | 4 |
+| INSIGHT cards | 2 |
+| PROJECT cards | 1 |
+| Total relationships | 6 |
+| Average relationship strength | 85.8% |
+
+## All Cards
+
+### 📘 METHOD Cards (4)
+- `METHOD_OODA_LOOP_DEBUGGING_20251002` - OODA cycle for rapid bug isolation
+- `METHOD_ASYNC_DEBUG_SYSTEMATIC_20251002` - Systematic async debugging approach
+- `METHOD_JWT_TOKEN_REFRESH_20251005` - JWT refresh pattern with rotation
+- `METHOD_COMPREHENSIVE_RIPPLE_ANALYSIS_20251006` - Analyze downstream impact
+
+### 💡 INSIGHT Cards (2)
+- `INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003` - Auth failures hide downstream bugs
+- `INSIGHT_STATELESS_AUTH_BENEFITS_20251004` - Stateless auth simplifies scaling
+
+### 🎯 PROJECT Cards (1)
+- `PROJECT_AUTH_SYSTEM_IMPLEMENTATION_20251001` - JWT auth with refresh mechanism
+
+## Relationship Index
+
+### By Type
+- **applied**: 2 relationships (avg 87.5%)
+- **discovered**: 1 relationship (95%)
+- **validated**: 1 relationship (90%)
+- **combines_with**: 1 relationship (80%)
+- **informs**: 1 relationship (75%)
+
+### By Strength
+- 90-100%: 3 relationships (Very Strong)
+- 80-89%: 2 relationships (Strong)
+- 70-79%: 1 relationship (Medium)
+
+## Cluster Analysis
+
+**Authentication Cluster** (4 cards, avg 90% strength)
+- PROJECT_AUTH_SYSTEM_IMPLEMENTATION_20251001
+- METHOD_JWT_TOKEN_REFRESH_20251005
+- INSIGHT_STATELESS_AUTH_BENEFITS_20251004
+- INSIGHT_AUTH_ERRORS_MASK_CASCADES_20251003
+
+**Debugging Cluster** (3 cards, avg 78% strength)
+- METHOD_OODA_LOOP_DEBUGGING_20251002
+- METHOD_ASYNC_DEBUG_SYSTEMATIC_20251002
+- METHOD_COMPREHENSIVE_RIPPLE_ANALYSIS_20251006
+
+---
+
+_This file is automatically maintained by knowledge-integrator agent._
+_Manual edits will be overwritten. Edit individual card files instead._
+```
+
+---
+
+## 📝 Implementation Notes
+
+### For LLM Implementers
+
+When a user provides this specification to you, adapt it to their environment:
+
+1. **Ask about their tools**: VS Code? Obsidian? Notion? Terminal preference?
+2. **Adapt file structure**: Match their existing organization patterns
+3. **Choose rendering**: VS Code extension? GitHub? Custom dashboard?
+4. **Scale appropriately**: Start small (10-20 cards), grow organically
+5. **Simplify if needed**: Skip optional phases, focus on core value
+
+### Key Success Factors
+
+✅ **Markdown-first** - Keep it simple, portable, git-friendly
+✅ **Agent-automated** - Extract automatically, don't rely on manual effort
+✅ **Relationship-focused** - Connections matter more than isolated cards
+✅ **Visually rendered** - Patterns must be obvious at a glance
+✅ **Bounded scope** - 230 nodes per file (performance + cognitive limit)
+
+### Common Pitfalls to Avoid
+
+❌ **Wrong granularity** - Too detailed (100 tiny cards) or too vague (3 giant cards)
+❌ **Relationship explosion** - Connecting everything to everything
+❌ **Duplicate knowledge** - Multiple cards for same concept
+❌ **Maintenance overhead** - System shouldn't take >30 min/week
+
+### Evolution Path
+
+**Week 1-2**: Capture phase (10-15 cards, getting comfortable)
+**Week 3-6**: Recognition phase (30-50 cards, patterns emerging)
+**Week 7-12**: Leverage phase (80-150 cards, active decision support)
+**Week 13+**: Archive & restart (230 nodes reached, start fresh)
+
+---
+
+## 🎯 Next Steps
+
+After implementing this system:
+
+1. **Create 5-10 cards from recent work** - Backfill your existing knowledge
+2. **Use query scripts daily** - Make searching second nature
+3. **Let relationships form naturally** - Don't force connections
+4. **Review weekly** - Prune weak relationships, enhance strong ones
+5. **Trust the compound effect** - Value grows with every card added
+
+---
+
+## 📚 Additional Resources
+
+**Mermaid Documentation**: https://mermaid.js.org/
+**Graph Theory Basics**: Understanding nodes, edges, clusters
+**Knowledge Management**: Zettelkasten, Evergreen notes concepts
+**Personal Knowledge Graphs**: Related research and tools
+
+---
+
+## 📄 Document Metadata
+
+**Version**: 1.0
+**Last Updated**: 2025-11-05
+**Status**: Production-tested (230+ nodes proven effective)
+**License**: Open specification - implement freely
+**Maintainer**: Alex Parratt
+
+**Change Log**:
+- v1.0 (2025-11-05): Initial release - Complete reference architecture
+
+---
+
+## 🤝 Contributing
+
+Found a better approach? Discovered new patterns? Improved the system?
+
+This specification evolves based on real-world usage. Feedback welcome.
+
+---
+
+**END OF SPECIFICATION**
+
+*Feed this document to your LLM and ask it to build your knowledge graph system.*
