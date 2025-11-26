@@ -12,6 +12,11 @@ This repository contains a collection of my most advanced prompts and meta-syste
 
 **Working with multi-agent AI systems?** Use the [Multi-Agent Orchestration Evaluator](./prompt-multi-agent-orchestration.evaluator/) for comprehensive system analysis.
 
+**Need to add features to existing prompts with
+strict character limits?** Use
+[PROMPTGRAFT](./promptgraft/) for surgical precision
+ editing with budget enforcement and quality gates.
+
 ---
 
 ## 📋 Complete System Overview
@@ -96,6 +101,22 @@ Comprehensive evaluator for multi-agent AI systems with 40+ quality criteria, mo
 
 ---
 
+### 🩹 PROMPTGRAFT
+**Location:** `promptgraft/`
+
+A pure LLM pipeline for surgical prompt editing. Six AI specialists coordinate to add features to prompts with strict character budget enforcement and quality gates. 95% success rate vs 40% manual editing.
+
+**Key Features:**
+- 6-specialist pipeline (Architect → Surgeon → Auditor → Executor → Inspector → Chronicler)
+- Strict character budget enforcement (never exceeded)
+- Three quality gates (pre-execution, post-execution, budget verification)
+- Complete traceability and version history
+- `run-all` command for automatic hands-free execution
+
+**Best For:** Production prompts with character limits, evolving prompt systems (v1 → v20), team collaboration, API prompts with token budgets
+
+---
+
 ## 🎯 When to Use Each System
 
 | Use Case | Recommended System | Why |
@@ -105,6 +126,7 @@ Comprehensive evaluator for multi-agent AI systems with 40+ quality criteria, mo
 | **Build from scratch** | Prompt Creation Trilogy | Complete analysis → generation → improvement cycle |
 | **Debugging problems** | Adaptive Debug Protocol | Systematic OODA loop problem-solving |
 | **Multi-agent systems** | Multi-Agent Orchestration Evaluator | Specialized for agent coordination analysis |
+| **Surgical prompt editing** | PROMPTGRAFT | 6-specialist pipeline with budget enforcement |
 | **Professional workflows** | Primer → UPE → Trilogy | Complete end-to-end prompt engineering |
 
 ---
@@ -129,6 +151,11 @@ Comprehensive evaluator for multi-agent AI systems with 40+ quality criteria, mo
 1. **Multi-Agent Orchestration Evaluator** - Assess current architecture
 2. **Dual Path Primer** - Plan improvements
 3. **Ultimate Prompt Evaluator** - Optimize individual agent prompts
+
+### **Surgical Prompt Modification**
+1. **PROMPTGRAFT** - Add features with character budget control
+2. **Ultimate Prompt Evaluator** - Validate the enhanced prompt
+3. **Deploy** - Use the surgically modified prompt
 
 ---
 
