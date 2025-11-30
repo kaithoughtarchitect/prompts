@@ -117,6 +117,23 @@ A pure LLM pipeline for surgical prompt editing. Six AI specialists coordinate t
 
 ---
 
+### Journeyman
+**Location:** `journeyman/`
+
+A structured 5-phase development methodology that ensures quality-driven implementation through rigorous discipline. TDD mandatory, quality gates enforced, full traceability.
+
+**Key Features:**
+- 5 phases: Blueprint > Foundation > Assembly > Finishing > Verification
+- TDD mandatory (tests before implementation)
+- Quality gates (can't advance until criteria met)
+- JOURNEY.md tracking (single source of truth)
+- Simple Path (6 steps) for quick tasks
+- Full Protocol (5 phases) for complex work
+
+**Best For:** Features that must work the first time, refactoring with zero regressions, team collaboration, learning TDD discipline
+
+---
+
 ## 🎯 When to Use Each System
 
 | Use Case | Recommended System | Why |
@@ -127,6 +144,7 @@ A pure LLM pipeline for surgical prompt editing. Six AI specialists coordinate t
 | **Debugging problems** | Adaptive Debug Protocol | Systematic OODA loop problem-solving |
 | **Multi-agent systems** | Multi-Agent Orchestration Evaluator | Specialized for agent coordination analysis |
 | **Surgical prompt editing** | PROMPTGRAFT | 6-specialist pipeline with budget enforcement |
+| **Structured development** | Journeyman | 5-phase protocol with TDD and quality gates |
 | **Professional workflows** | Primer → UPE → Trilogy | Complete end-to-end prompt engineering |
 
 ---
