@@ -17,6 +17,11 @@ strict character limits?** Use
 [PROMPTGRAFT](./promptgraft/) for surgical precision
  editing with budget enforcement and quality gates.
 
+**Need structured development with TDD and quality
+gates?** Use [Journeyman](./journeyman/) for 5-phase
+ disciplined implementation from Blueprint to
+Verification.
+
 ---
 
 ## 📋 Complete System Overview
@@ -117,20 +122,31 @@ A pure LLM pipeline for surgical prompt editing. Six AI specialists coordinate t
 
 ---
 
-### Journeyman
+### 🛠️ Journeyman
 **Location:** `journeyman/`
 
-A structured 5-phase development methodology that ensures quality-driven implementation through rigorous discipline. TDD mandatory, quality gates enforced, full traceability.
+A structured 5-phase development methodology that
+ensures every task is completed with discipline,
+quality, and traceability. TDD mandatory, quality
+gates enforced, full documentation.
 
 **Key Features:**
-- 5 phases: Blueprint > Foundation > Assembly > Finishing > Verification
-- TDD mandatory (tests before implementation)
+- 5 phases: Blueprint → Foundation → Assembly →
+Finishing → Verification
+- TDD mandatory (tests before implementation,
+always)
 - Quality gates (can't advance until criteria met)
-- JOURNEY.md tracking (single source of truth)
-- Simple Path (6 steps) for quick tasks
-- Full Protocol (5 phases) for complex work
+- JOURNEY.md tracking (single source of truth for
+decisions)
+- Simple Path (6 steps) for tasks < 2 days
+- Full Protocol (5 phases) for complex 2+ day
+projects
+- Framework library with implementation playbooks
 
-**Best For:** Features that must work the first time, refactoring with zero regressions, team collaboration, learning TDD discipline
+**Best For:** Features that must work the first
+time, refactoring with zero regressions, team
+collaboration, complex systems (5+ files), learning
+TDD discipline
 
 ---
 
@@ -174,6 +190,14 @@ A structured 5-phase development methodology that ensures quality-driven impleme
 1. **PROMPTGRAFT** - Add features with character budget control
 2. **Ultimate Prompt Evaluator** - Validate the enhanced prompt
 3. **Deploy** - Use the surgically modified prompt
+
+### **Disciplined Feature Development**
+1. **Journeyman** - Follow 5-phase protocol
+(Blueprint → Verification)
+2. **Ultimate Prompt Evaluator** - Validate any
+prompts created during development
+3. **Deploy** - Ship with confidence knowing all
+gates passed
 
 ---
 
