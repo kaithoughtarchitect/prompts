@@ -10,7 +10,7 @@ This repository contains a collection of my most advanced prompts and meta-syste
 
 **Debugging AI systems or code?** Try the [Adaptive Debug Protocol](./prompt-adaptive-debug-protocol/) for systematic problem-solving.
 
-**Working with multi-agent AI systems?** Use the [Multi-Agent Orchestration Evaluator](./prompt-multi-agent-orchestration.evaluator/) for comprehensive system analysis.
+**Working with multi-agent AI systems?** Use the [Multi-Agent Orchestration Evaluator](./prompt-multi-agent-orchestration-evaluator/) for comprehensive system analysis.
 
 **Need to add features to existing prompts with
 strict character limits?** Use
@@ -92,7 +92,7 @@ Military-grade debugging system using OODA loops (Observe, Orient, Decide, Act) 
 ---
 
 ### 🤖 Multi-Agent Orchestration Evaluator
-**Location:** `prompt-multi-agent-orchestration.evaluator/`
+**Location:** `prompt-multi-agent-orchestration-evaluator/`
 
 Comprehensive evaluator for multi-agent AI systems with 40+ quality criteria, modern framework support, and cost optimization analysis.
 
