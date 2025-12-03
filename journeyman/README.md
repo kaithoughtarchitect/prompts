@@ -25,7 +25,7 @@ The folder structure is ready:
 
 ```
 journeyman/
-├── .journeyman/
+├── journeyman-internals/
 │   ├── prompts/
 │   │   ├── master-orchestrator.md       # The brain (59 KB) - paste this!
 │   │   ├── journeyman-protocol.md       # Core 5-phase protocol (8 KB)
@@ -61,7 +61,7 @@ Just tell your AI what you want:
 
 ### Paste the Master Orchestrator (Full Power)
 
-Copy the entire contents of `.journeyman/prompts/master-orchestrator.md` into your AI assistant (Claude Code, ChatGPT, etc.). This is the complete 59 KB protocol with all frameworks.
+Copy the entire contents of `journeyman-internals/prompts/master-orchestrator.md` into your AI assistant (Claude Code, ChatGPT, etc.). This is the complete 59 KB protocol with all frameworks.
 
 ### As a Skill (Claude Code)
 
@@ -276,16 +276,16 @@ This is your **single source of truth** for:
 
 | File | Size | Purpose |
 |------|------|---------|
-| `.journeyman/prompts/master-orchestrator.md` | 59 KB | **The brain** - Complete protocol with all frameworks |
-| `.journeyman/prompts/journeyman-protocol.md` | 8 KB | Core 5-phase protocol (original) |
-| `.journeyman/prompts/implementation-framework-library.md` | 54 KB | Framework library with playbooks |
+| `journeyman-internals/prompts/master-orchestrator.md` | 59 KB | **The brain** - Complete protocol with all frameworks |
+| `journeyman-internals/prompts/journeyman-protocol.md` | 8 KB | Core 5-phase protocol (original) |
+| `journeyman-internals/prompts/implementation-framework-library.md` | 54 KB | Framework library with playbooks |
 
 ### Templates
 
 | File | Purpose |
 |------|---------|
-| `.journeyman/templates/journey-template.md` | Full 5-phase JOURNEY.md template |
-| `.journeyman/templates/simple-path.md` | 6-step quick template |
+| `journeyman-internals/templates/journey-template.md` | Full 5-phase JOURNEY.md template |
+| `journeyman-internals/templates/simple-path.md` | 6-step quick template |
 | `journeys/` | Your journey files live here |
 
 ---

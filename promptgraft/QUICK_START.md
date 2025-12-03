@@ -20,17 +20,17 @@ This guide gets you up and running with PROMPTGRAFT in 5 minutes.
 In your Claude Code workspace, run:
 
 ```bash
-mkdir -p promptgraft/.promptgraft/prompts
+mkdir -p promptgraft/promptgraft-internals/prompts
 mkdir -p promptgraft/{base,briefs,blueprints,output}
 ```
 
 ### Copy Specialist Prompts
 
-Download these 7 files and place them in `promptgraft/.promptgraft/prompts/`:
+Download these 7 files and place them in `promptgraft/promptgraft-internals/prompts/`:
 
 ```
 promptgraft/
-└── .promptgraft/
+└── promptgraft-internals/
     └── prompts/
         ├── architect.md        ← Strategic planner
         ├── surgeon.md          ← Implementation planner
@@ -188,7 +188,7 @@ After a successful pipeline run, you'll have:
 
 ```
 promptgraft/
-├── .promptgraft/
+├── promptgraft-internals/
 │   ├── state.json                      ← Pipeline state
 │   └── prompts/                        ← [7 prompt files]
 ├── base/
@@ -291,7 +291,7 @@ promptgraft new "Feature" v1.0 v1.1 --budget=400
 promptgraft reset
 
 # Or manually fix
-nano promptgraft/.promptgraft/state.json
+nano promptgraft/promptgraft-internals/state.json
 ```
 
 ### Problem: "Budget exceeded"
@@ -444,5 +444,5 @@ Stages:
 
 **Need help?**
 - Check full documentation in `README.md`
-- Review specialist prompts in `.promptgraft/prompts/`
-- Inspect state file: `cat .promptgraft/state.json`
+- Review specialist prompts in `promptgraft-internals/prompts/`
+- Inspect state file: `cat promptgraft-internals/state.json`

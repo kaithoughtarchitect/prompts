@@ -23,8 +23,8 @@ Use this checklist to verify your PROMPTGRAFT installation is complete and worki
 
 ### Step 1: Directory Structure
 - [ ] Created `promptgraft/` directory
-- [ ] Created `promptgraft/.promptgraft/` directory
-- [ ] Created `promptgraft/.promptgraft/prompts/` directory
+- [ ] Created `promptgraft/promptgraft-internals/` directory
+- [ ] Created `promptgraft/promptgraft-internals/prompts/` directory
 - [ ] Created `promptgraft/base/` directory
 - [ ] Created `promptgraft/briefs/` directory
 - [ ] Created `promptgraft/blueprints/` directory
@@ -37,17 +37,17 @@ tree promptgraft/
 ```
 
 ### Step 2: Specialist Prompts
-- [ ] `orchestrator.md` in `.promptgraft/prompts/`
-- [ ] `architect.md` in `.promptgraft/prompts/`
-- [ ] `surgeon.md` in `.promptgraft/prompts/`
-- [ ] `auditor.md` in `.promptgraft/prompts/`
-- [ ] `executor.md` in `.promptgraft/prompts/`
-- [ ] `inspector.md` in `.promptgraft/prompts/`
-- [ ] `chronicler.md` in `.promptgraft/prompts/`
+- [ ] `orchestrator.md` in `promptgraft-internals/prompts/`
+- [ ] `architect.md` in `promptgraft-internals/prompts/`
+- [ ] `surgeon.md` in `promptgraft-internals/prompts/`
+- [ ] `auditor.md` in `promptgraft-internals/prompts/`
+- [ ] `executor.md` in `promptgraft-internals/prompts/`
+- [ ] `inspector.md` in `promptgraft-internals/prompts/`
+- [ ] `chronicler.md` in `promptgraft-internals/prompts/`
 
 **Verify with:**
 ```bash
-ls promptgraft/.promptgraft/prompts/
+ls promptgraft/promptgraft-internals/prompts/
 # Should list 7 .md files
 ```
 
@@ -108,7 +108,7 @@ promptgraft new "Test Feature" v1.0 v1.1 --budget=200
 **Verify with:**
 ```bash
 # Check state was created
-cat promptgraft/.promptgraft/state.json
+cat promptgraft/promptgraft-internals/state.json
 
 # Check brief was created
 ls promptgraft/briefs/
@@ -206,7 +206,7 @@ wc -c promptgraft/output/v1.1.txt
 ### State File Verification
 
 ```bash
-cat promptgraft/.promptgraft/state.json
+cat promptgraft/promptgraft-internals/state.json
 ```
 
 - [ ] Valid JSON (no syntax errors)
@@ -386,8 +386,8 @@ Don't proceed to production until all checks pass.
 
 - **Full Documentation:** `README.md`
 - **Quick Start:** Quick Start Guide
-- **Specialist Details:** Individual prompt files in `.promptgraft/prompts/`
-- **State Inspection:** `cat .promptgraft/state.json`
+- **Specialist Details:** Individual prompt files in `promptgraft-internals/prompts/`
+- **State Inspection:** `cat promptgraft-internals/state.json`
 - **File Structure:** `tree promptgraft/`
 
 ---
