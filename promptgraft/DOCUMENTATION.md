@@ -42,7 +42,7 @@ PROMPTGRAFT is a file-based, stateful orchestration system that coordinates spec
 ```
 workspace/
 └── promptgraft/
-    ├── .promptgraft/
+    ├── promptgraft-internals/
     │   ├── state.json                    # Pipeline state tracker
     │   └── prompts/                      # Specialist prompt library
     │       ├── architect.md
@@ -74,12 +74,12 @@ workspace/
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p promptgraft/{.promptgraft/prompts,base,briefs,blueprints,output}
+mkdir -p promptgraft/{promptgraft-internals/prompts,base,briefs,blueprints,output}
 ```
 
 ### Step 2: Install Specialist Prompts
 
-Place all specialist prompt files in `promptgraft/.promptgraft/prompts/`:
+Place all specialist prompt files in `promptgraft/promptgraft-internals/prompts/`:
 
 - `architect.md` - Strategic planner
 - `surgeon.md` - Implementation planner
@@ -728,7 +728,7 @@ promptgraft continue  # Run through pipeline
 
 ### Adding New Specialists
 
-1. Create prompt file in `promptgraft/.promptgraft/prompts/`
+1. Create prompt file in `promptgraft/promptgraft-internals/prompts/`
 2. Follow file-based I/O conventions
 3. Update Orchestrator to invoke new specialist
 4. Document in README
