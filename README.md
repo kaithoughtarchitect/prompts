@@ -1,5 +1,9 @@
 # Kai.ThoughtArquitect Prompt Collection
 
+> ### 📦 Archive (2025)
+>
+> These prompt systems were built for the models of 2025 and lean on the heavy scaffolding that era required, large evaluation rubrics, multi-loop self-scoring, and character-budget pipelines. Newer models handle much of that reasoning natively, so treat this as a record of the work and the thinking behind it, not as current best practice. Kept public as history.
+
 This repository contains a collection of my most advanced prompts and meta-systems designed for prompt engineering, debugging, evaluation, and specialized AI orchestration tasks.
 
 ## 🧭 Quick Start Guide
@@ -16,11 +20,6 @@ This repository contains a collection of my most advanced prompts and meta-syste
 strict character limits?** Use
 [PROMPTGRAFT](./promptgraft/) for surgical precision
  editing with budget enforcement and quality gates.
-
-**Need structured development with TDD and quality
-gates?** Use [Journeyman](./journeyman/) for 5-phase
- disciplined implementation from Blueprint to
-Verification.
 
 ---
 
@@ -122,34 +121,6 @@ A pure LLM pipeline for surgical prompt editing. Six AI specialists coordinate t
 
 ---
 
-### 🛠️ Journeyman
-**Location:** `journeyman/`
-
-A structured 5-phase development methodology that
-ensures every task is completed with discipline,
-quality, and traceability. TDD mandatory, quality
-gates enforced, full documentation.
-
-**Key Features:**
-- 5 phases: Blueprint → Foundation → Assembly →
-Finishing → Verification
-- TDD mandatory (tests before implementation,
-always)
-- Quality gates (can't advance until criteria met)
-- JOURNEY.md tracking (single source of truth for
-decisions)
-- Simple Path (6 steps) for tasks < 2 days
-- Full Protocol (5 phases) for complex 2+ day
-projects
-- Framework library with implementation playbooks
-
-**Best For:** Features that must work the first
-time, refactoring with zero regressions, team
-collaboration, complex systems (5+ files), learning
-TDD discipline
-
----
-
 ## 🎯 When to Use Each System
 
 | Use Case | Recommended System | Why |
@@ -160,7 +131,6 @@ TDD discipline
 | **Debugging problems** | Adaptive Debug Protocol | Systematic OODA loop problem-solving |
 | **Multi-agent systems** | Multi-Agent Orchestration Evaluator | Specialized for agent coordination analysis |
 | **Surgical prompt editing** | PROMPTGRAFT | 6-specialist pipeline with budget enforcement |
-| **Structured development** | Journeyman | 5-phase protocol with TDD and quality gates |
 | **Professional workflows** | Primer → UPE → Trilogy | Complete end-to-end prompt engineering |
 
 ---
@@ -190,14 +160,6 @@ TDD discipline
 1. **PROMPTGRAFT** - Add features with character budget control
 2. **Ultimate Prompt Evaluator** - Validate the enhanced prompt
 3. **Deploy** - Use the surgically modified prompt
-
-### **Disciplined Feature Development**
-1. **Journeyman** - Follow 5-phase protocol
-(Blueprint → Verification)
-2. **Ultimate Prompt Evaluator** - Validate any
-prompts created during development
-3. **Deploy** - Ship with confidence knowing all
-gates passed
 
 ---
 
